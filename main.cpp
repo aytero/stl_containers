@@ -3,8 +3,8 @@
 
 int	main() {
 
-	stack<int>	em;
-	stack<int>	st;
+	ft::stack<int>	em;
+	ft::stack<int>	st;
 
 	em.push(8);
 

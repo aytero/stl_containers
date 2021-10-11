@@ -1,8 +1,14 @@
-#ifndef __VECTOR_HPP
-# define __VECTOR_HPP
+#ifndef __VECTOR_HPP__
+# define __VECTOR_HPP__
 
-template < class T, class Alloc = allocator<T> >// class vector;
-class Vector {
+namespace ft
+{
+	template < class T, class Alloc = allocator<T> >// class vector;
+	class vector;
+}
+
+template < class T, class Alloc >// class vector;
+class ft::vector {
 
 	public:
 		//typedef typename
@@ -21,6 +27,7 @@ class Vector {
 		typedef size_t				size_type;
 		
 
+		// or make not nested/different files
 		/*
 		template <>
 		class const_iterator {
