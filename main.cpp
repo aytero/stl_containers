@@ -1,3 +1,4 @@
+#include "vector.hpp"
 #include "stack.hpp"
 #include <iostream>
 
@@ -14,6 +15,9 @@ int	main() {
 	st.push(8);
 
 	std::cout << (st == em) << "\n";
+	std::cout << "\n";
+
+	ft::vector<int>	v;
 
 	return 0;
 }

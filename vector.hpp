@@ -1,13 +1,15 @@
 #ifndef __VECTOR_HPP__
 # define __VECTOR_HPP__
 
+#include <memory>
+
 namespace ft
 {
-	template < class T, class Alloc = allocator<T> >// class vector;
+	template < class T, class Alloc = std::allocator<T> >
 	class vector;
 }
 
-template < class T, class Alloc >// class vector;
+template < class T, class Alloc >
 class ft::vector {
 
 	public:
@@ -25,23 +27,54 @@ class ft::vector {
 		//typedef const_reverse_iterator;
 		//typedef difference_type;
 		typedef size_t				size_type;
+		//typedef unsigned long		size_type;
 		
+	private:
+		pointer		arr_;
+		size_type	size_;
+		size_type	capacity_;
 
+	public:
 		// or make not nested/different files
 		/*
 		template <>
 		class const_iterator {
+			public:
+				const_iterator();
+				const_iterator( const const_iterator &ref );
+				virtual ~const_iterator();
+				const_iterator& operator=( const const_iterator &rhs );
+
+				// dereference * and ->
+				// += and -=
+				// arithmetic operators it and int or it and it
+				// increments
+				// relational operators
+				// operator[]
+				// const operator[]
 		}
 
 		class iterator : public const_iterator() {
 		}
 		*/
 
-		vector();
-		virtual ~vector();
+		explicit vector( const allocator_type& alloc = allocator_type() ) : size_(0), capacity_(0) {
+			arr_ = alloc.allocate(0);
+			// or arr(0)
+			//(void)alloc;
+		}
+
+		explicit vector( size_type n, const value_type& val = value_type(),
+						const allocator_type& alloc = allocator_type() ) {
+			(void)n;
+			(void)val;
+			(void)alloc;
+		}
+		virtual ~vector() {};
 		//operator=();
 
 		// iterators
+		/*
 		iterator		begin( void );
 		iterator		end( void );
 		const_iterator	begin( void ) const;
@@ -123,6 +156,7 @@ class ft::vector {
 
 		template < class T, class Alloc >
 		void	swap( vector<T, Alloc>& x, vector<T, Alloc>& y);
+		*/
 };
 
 #endif
