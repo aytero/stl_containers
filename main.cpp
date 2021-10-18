@@ -1,6 +1,7 @@
 #include "vector.hpp"
 #include "stack.hpp"
 #include <iostream>
+#include <vector>
 
 int	main() {
 
@@ -18,6 +19,38 @@ int	main() {
 	std::cout << "\n";
 
 	ft::vector<int>	v;
+	ft::vector<int>	vfill(8);
+	ft::vector<int>	vfillval(8, 15);// calls range constr but should call fill
+
+	//std::cout << "empty front: " << v.front() << "\n";
+	std::cout << "size: " << vfill.size() << "\n";
+	std::cout << "elem [1]: " << vfill[1] << "\n";
+	//std::cout << "elem [1]: " << vfillval[1] << "\n";
+	//std::cout << "front:  " << vfillval.front() << "\n";
+//	try {
+//		vfill.at(9);
+//	}
+///	catch ( std::out_of_range& oor ) {
+//		std::cerr << "Out of Range error: " << oor.what() << "\n";
+//	}
+
+	std::vector<int>	stv(3, 8);
+	std::cout << "size: " << stv.size() << "\n";
+	std::cout << "elem [1]: " << stv[1] << "\n";
+	std::cout << stv.at(1) << "\n";
+	try {
+		stv.at(9);
+	}
+	catch ( std::out_of_range& oor ) {
+		std::cerr << "Out of Range error: " << oor.what() << "\n";
+	}
+
+	std::vector<int>	stvf;
+
+	stvf.push_back(1);
+	stvf.push_back(7);
+	std::cout << stvf.front() << "\n";
+	std::cout << stvf.back() << "\n";
 
 	return 0;
 }

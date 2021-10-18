@@ -1,6 +1,6 @@
 NAME		=	out
 CPPC		=	clang++
-FLAGS		=	-std=c++98 -Wall -Werror -Wextra -Wshadow #-Wno-shadow
+FLAGS		=	-std=c++98 -Wall -Werror -Wextra -Wshadow -g #-Wno-shadow
 
 SRCS_DIR	=	.
 SRCS_LIST	=	main.cpp
