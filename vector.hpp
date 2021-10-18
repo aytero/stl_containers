@@ -33,6 +33,7 @@ class ft::vector {
 		pointer		arr_;
 		size_type	size_;
 		size_type	capacity_;
+		allocator_type	alloc_;
 
 	public:
 		// or make not nested/different files
@@ -58,19 +59,22 @@ class ft::vector {
 		}
 		*/
 
-		explicit vector( const allocator_type& alloc = allocator_type() ) : size_(0), capacity_(0) {
-			arr_ = alloc.allocate(0);
-			// or arr(0)
-			//(void)alloc;
+		explicit vector( const allocator_type& alloc = allocator_type() ) : arr_(NULL), size_(0), capacity_(0) {
+			//arr_ = alloc.allocate(0);
+			alloc_ = alloc;
 		}
+		explicit vector( size_type n)//, const value_type& val = value_type(),
+					//	const allocator_type& alloc = allocator_type() ) 
+				: size_(n), capacity_(n), arr_(alloc_.allocate(n)) {}
+		//copy constr
 
-		explicit vector( size_type n, const value_type& val = value_type(),
-						const allocator_type& alloc = allocator_type() ) {
-			(void)n;
-			(void)val;
-			(void)alloc;
+		virtual ~vector() 
+		{
+			for (size_type i = 0; i < size_; i++)
+				alloc_.destroy(arr_ + i);
+			if (arr_)
+				alloc_.deallocate(arr_, capacity_);
 		}
-		virtual ~vector() {};
 		//operator=();
 
 		// iterators
@@ -85,14 +89,15 @@ class ft::vector {
 		const_reverse_iterator	rbegin( void ) const;
 		const_reverse_iterator	rend( void ) const;
 
+		*/
 		// capacity:
-		size_type	size() const;
-		size_type	max_size() const;
-		void		resize( size_type n, value_type val = value_type() );
-		size_type	capacity() const;
-		bool		empty() const;
-		void		reserve( size_type n );
-
+		size_type	size() const { return size_; }
+		size_type	max_size() const { return alloc_.max_size(); }
+		//void		resize( size_type n, value_type val = value_type() );
+		size_type	capacity() const { return capacity_; }
+		bool		empty() const { return size_ == 0;}
+		//void		reserve( size_type n );
+/*
 		// element access
 		reference		operator[] ( size_type n );
 		const_reference	operator[] ( size_type n ) const;
