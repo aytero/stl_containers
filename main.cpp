@@ -52,5 +52,18 @@ int	main() {
 	std::cout << stvf.front() << "\n";
 	std::cout << stvf.back() << "\n";
 
+	ft::vector<int>		toIter(3, 15);
+	ft::vector<int>::const_iterator	cit;
+	ft::vector<int>::const_iterator	it = toIter.begin();;
+
+	cit = toIter.begin();
+
+	std::cout << *cit << "\n";
+	std::cout << *(cit + 2) << "\n";
+
+	toIter.push_back(2);
+	it++;
+	//std::cout << *(cit + it) << "\n";
+
 	return 0;
 }

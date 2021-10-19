@@ -4,6 +4,7 @@
 #include <memory>
 #include <iostream>
 #include <exception>
+#include <iterator>
 
 namespace ft
 {
@@ -24,10 +25,10 @@ class ft::vector {
 		typedef value_type*			pointer;
 		typedef const value_type*	const_pointer;
 		//typedef iterator;
-		//typedef const_iterator;
+		//typedef ft::vector::const_iterator	const_iterator;
 		//typedef reverse_iterator;
 		//typedef const_reverse_iterator;
-		//typedef difference_type;
+		typedef typename Alloc::difference_type	difference_type;
 		typedef size_t				size_type;
 		//typedef unsigned long		size_type;
 		
@@ -39,34 +40,73 @@ class ft::vector {
 
 	public:
 		// or make not nested/different files
-		/*
-		template <>
+		//template < class Ty, class A >
 		class const_iterator {
 			public:
-				const_iterator();
-				const_iterator( const const_iterator &ref );
-				virtual ~const_iterator();
-				const_iterator& operator=( const const_iterator &rhs );
+				typedef typename Alloc::value_type			value_type;
+				typedef typename Alloc::value_type*			pointer;
+				typedef typename Alloc::const_reference		const_reference;
+				typedef typename Alloc::difference_type		difference_type;
+				typedef std::random_access_iterator_tag	iterator_category;
+
+				const_iterator() : ptr_(NULL) {}
+				const_iterator( pointer elem ) : ptr_(elem) {}
+				const_iterator( const const_iterator &ref ) : ptr_(ref.ptr_) {}
+				virtual ~const_iterator() {}
+
+				// const ?
+				const_iterator& operator=( const const_iterator &other ) {
+					if (this != &other)
+						ptr_ = other.ptr_;
+					return *this;
+				}
 
 				// dereference * and ->
-				// += and -=
-				// arithmetic operators it and int or it and it
-				// increments
-				// relational operators
-				// operator[]
-				// const operator[]
-		}
+				const_reference operator*() const { return *ptr_; }
+				pointer operator->() const { return ptr_; }// const ?
+				// const operator[], operator []
+				const_reference operator[]( size_type n ) const { return ptr_ + n; }
 
+				// relational operators
+				bool	operator==( const const_iterator &rhs ) { return ptr_ == rhs.ptr_; }
+				bool	operator!=( const const_iterator &rhs ) { return ptr_ != rhs.ptr_; }
+				bool	operator<( const const_iterator &rhs ) { return ptr_ < rhs.ptr_; }
+				bool	operator<=( const const_iterator &rhs ) { return ptr_ <= rhs.ptr_; }
+				bool	operator>( const const_iterator &rhs ) { return ptr_ > rhs.ptr_; }
+				bool	operator>=( const const_iterator &rhs ) { return ptr_ >= rhs.ptr_; }
+
+				// increments, decrements
+				const_iterator& operator++() { ++ptr_; return *this; }
+				const_iterator operator++( int ) { const_iterator tmp(*this); ++ptr_; return tmp; }
+				const_iterator& operator--() { --ptr_; return *this; }
+				const_iterator operator--( int ) { const_iterator tmp(*this); --ptr_; return tmp; }
+
+				// arithmetic operators it and int or it and it
+				// += and -=
+
+				// and friend + for int ( or friend for other iter ? )
+				const const_iterator operator+( const size_type n ) const { return const_iterator(ptr_ + n); }
+				//friend const const_iterator operator+( size_type n, const const_iterator &c ) const { return const_iterator(c.ptr_ + n); }
+				//const const_iterator operator+=( const const_iterator &c ) {}
+		//friend const_iterator operator+(size_type n, const const_iterator &other) { return const_iterator(other._ptr + n); }
+
+				// and friend - for int
+				const const_iterator operator-( const size_type n ) const { return const_iterator(ptr_ - n); }
+				const const_iterator operator-( const const_iterator &c ) const { return const_iterator(ptr_ - c.ptr_); }
+				//const const_iterator operator-=( const const_iterator &c ) {}
+
+			protected:
+				pointer	ptr_;
+			//	value_type*	ptr_;
+		};
+
+		/*
 		class iterator : public const_iterator() {
-		}
+
+				//typedef T::reference			reference;
+		};
 		*/
 	
-
-
-		// form cppreference, prob c++14
-		//vector();
-		//explicit vector(const Allocator& alloc);
-		//explicit vector(size_type count, const T& valur = T(), const Allocator& alloc = Allocator())
 
 		// default
 		explicit vector( const allocator_type& alloc = allocator_type() )
@@ -81,14 +121,17 @@ class ft::vector {
 				//arr_ + i = val;
 			std::cout << "fill\n";
 		}
+		/*
 		// range
-		//template < class InputIterator >
-		//vector( InputIterator first, InputIterator last,
-		//		const allocator_type& alloc = allocator_type() ) 
-		//		: alloc_(alloc), capacity_(0), size_(0), arr_(NULL) {
-		//	assign(first, last);
-		//	std::cout << "range\n";
-		//}
+		template < class InputIterator >
+		vector( InputIterator first, InputIterator last,
+				const allocator_type& alloc = allocator_type() ) 
+				: alloc_(alloc), capacity_(0), size_(0), arr_(NULL) {
+
+			assign(first, last);
+			std::cout << "range\n";
+		}
+		*/
 
 		// copy constr
 		vector( const vector& x )
@@ -112,9 +155,9 @@ class ft::vector {
 				return *this;
 
 			// free before
-			this->clear();
+			clear();
 			//alloc;
-			this->reserve(other.size_);
+			reserve(other.size_);
 			alloc_ = other.alloc_;
 			capacity_ = other.capacity_;
 			size_ = other.size_;
@@ -125,12 +168,12 @@ class ft::vector {
 
 
 		// iterators
-		/*
-		iterator		begin( void ) { return iterator(arr_); }
-		const_iterator	begin( void ) const { return iterator(arr_); }
+		//iterator		begin( void ) { return iterator(arr_); }
+		const_iterator	begin( void ) const { return const_iterator(arr_); }
 
-		iterator		end( void ) { return iterator(arr_ + size_); }
-		const_iterator	end( void ) const { return iterator(arr_ + size_); }
+		//iterator		end( void ) { return iterator(arr_ + size_); }
+		const_iterator	end( void ) const { return const_iterator(arr_ + size_); }
+		/*
 
 		reverse_iterator		rbegin( void );
 		const_reverse_iterator	rbegin( void ) const;
@@ -142,19 +185,45 @@ class ft::vector {
 
 		// allocator
 		allocator_type get_allocator() const { return alloc_; }
+
 		// capacity:
 		size_type	size() const { return size_; }
 		size_type	max_size() const { return alloc_.max_size(); }
 		size_type	capacity() const { return capacity_; }
 		bool		empty() const { return size_ == 0;}
 		
-		void		reserve( size_type n ) {
+		void	reserve( size_type n ) {
 			if (n <= capacity_)
 				return ;
-			;
+
+			size_type	new_cap;
+			pointer		new_arr;
+
+			new_cap = n;// or size_ * 2
+			//new_cap = std::max(size_ * 2, n);
+			new_arr = alloc_.allocate(new_cap);
+			for (size_type i = 0; i < size_; i++)
+				new_arr[i] = arr_[i];
+			if (arr_)
+				alloc_.deallocate(arr_, capacity_);
+			capacity_ = new_cap;
+			arr_ = new_arr;
 		}
 
-		//void		resize( size_type n, value_type val = value_type() );
+		void	resize( size_type n, value_type val = value_type() ) {
+			//if (size_ > n) {
+			//	size_ = n;
+			//}
+			//	;// reduce size to n
+			//else if (n > size_ && n <= capacity_)
+			//	;//fill with val
+			//else
+			//	;//reserve
+			reserve(n);
+			while (size_ < n)
+				arr_[size_++] = val;
+			size_ = n;
+		}
 
 		// element access
 		reference		operator[] ( size_type n ) { return (arr_[n]); }
@@ -176,12 +245,25 @@ class ft::vector {
 
 
 		// modifiers
+		template < class InputIterator >
+		void	assign( InputIterator first, InputIterator last ) {
+			
+			clear();
+			size_type	new_size = std::distance(first, last);
+			reserve(new_size);
+			size_ = new_size;
 
-		//template < class InputIterator >
-		//void	assign( InputIterator first, InputIterator last ) {
-		//}
+			size_type	i = 0;
+			while (first != last) {
+				arr_[i++] = *first;
+				++first;
+			}
+		}
 
-		//void	assign( size_type n, const value_type& val ) {}
+		void	assign( size_type n, const value_type& val ) {
+			clear();
+			resize(n, val);
+		}
 
 		void	push_back( const value_type& val ) {
 			if (size_ == capacity_)
@@ -206,6 +288,7 @@ class ft::vector {
 			size_--;
 		}
 		iterator erase( iterator first, iterator last );
+
 		swap();
 		*/
 		void	clear() {
