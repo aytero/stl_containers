@@ -46,15 +46,23 @@ int	main() {
 	}
 
 	std::vector<int>	stvf;
+	std::vector<int>::const_iterator	stit;
+	std::vector<int>::const_iterator	stit1;
 
 	stvf.push_back(1);
 	stvf.push_back(7);
+	stvf.push_back(3);
+	stvf.push_back(5);
 	std::cout << stvf.front() << "\n";
 	std::cout << stvf.back() << "\n";
+	stit = stvf.begin();
+	stit1 = stit;
+	stit1 += 1;
+	std::cout << "st it arithmetics " << *(1 + stit1)  << "\n";
+	std::cout << "st it arithmetics " << *(stit1 + 1)  << "\n";
 
 	ft::vector<int>		toIter(3, 15);
 	ft::vector<int>::const_iterator	cit;
-	ft::vector<int>::const_iterator	it = toIter.begin();;
 
 	cit = toIter.begin();
 
@@ -62,8 +70,12 @@ int	main() {
 	std::cout << *(cit + 2) << "\n";
 
 	toIter.push_back(2);
-	it++;
-	//std::cout << *(cit + it) << "\n";
+	toIter.push_back(7);
+	toIter.push_back(5);
+	cit += 3;
+	std::cout << "it arithmetics " << *(cit) << "\n";
+	std::cout << "it arithmetics " << *(cit + 1) << "\n";
+	std::cout << "it arithmetics " << *(1 + cit) << "\n";
 
 	return 0;
 }

@@ -16,7 +16,6 @@ template < class T, class Alloc >
 class ft::vector {
 
 	public:
-		//typedef typename
 		typedef T					value_type;
 		typedef Alloc				allocator_type;
 		//typedef reference		allocator_type::reference
@@ -40,34 +39,31 @@ class ft::vector {
 
 	public:
 		// or make not nested/different files
-		//template < class Ty, class A >
 		class const_iterator {
+			//private:
+			//	typedef const_iterator	cit;//????
 			public:
 				typedef typename Alloc::value_type			value_type;
-				typedef typename Alloc::value_type*			pointer;
+				typedef typename Alloc::const_pointer		pointer;// const_pointer
+				// const pointer ????
 				typedef typename Alloc::const_reference		const_reference;
 				typedef typename Alloc::difference_type		difference_type;
-				typedef std::random_access_iterator_tag	iterator_category;
+				typedef std::random_access_iterator_tag		iterator_category;
 
-				const_iterator() : ptr_(NULL) {}
-				const_iterator( pointer elem ) : ptr_(elem) {}
+				const_iterator( pointer ptr = NULL ) : ptr_(ptr) {}
+				//const_iterator( pointer elem ) : ptr_(elem) {}
 				const_iterator( const const_iterator &ref ) : ptr_(ref.ptr_) {}
 				virtual ~const_iterator() {}
-
-				// const ?
 				const_iterator& operator=( const const_iterator &other ) {
 					if (this != &other)
 						ptr_ = other.ptr_;
 					return *this;
 				}
 
-				// dereference * and ->
 				const_reference operator*() const { return *ptr_; }
-				pointer operator->() const { return ptr_; }// const ?
-				// const operator[], operator []
+				pointer operator->() const { return ptr_; }
 				const_reference operator[]( size_type n ) const { return ptr_ + n; }
 
-				// relational operators
 				bool	operator==( const const_iterator &rhs ) { return ptr_ == rhs.ptr_; }
 				bool	operator!=( const const_iterator &rhs ) { return ptr_ != rhs.ptr_; }
 				bool	operator<( const const_iterator &rhs ) { return ptr_ < rhs.ptr_; }
@@ -75,37 +71,69 @@ class ft::vector {
 				bool	operator>( const const_iterator &rhs ) { return ptr_ > rhs.ptr_; }
 				bool	operator>=( const const_iterator &rhs ) { return ptr_ >= rhs.ptr_; }
 
-				// increments, decrements
 				const_iterator& operator++() { ++ptr_; return *this; }
 				const_iterator operator++( int ) { const_iterator tmp(*this); ++ptr_; return tmp; }
 				const_iterator& operator--() { --ptr_; return *this; }
 				const_iterator operator--( int ) { const_iterator tmp(*this); --ptr_; return tmp; }
 
-				// arithmetic operators it and int or it and it
-				// += and -=
+				const const_iterator operator+( size_type n ) const { return const_iterator(ptr_ + n); }
+				friend const_iterator operator+( size_type n, const const_iterator &c ) { return const_iterator(c.ptr_ + n); }
+				const_iterator& operator+=( size_type n ){ ptr_ += n; return *this; }
 
-				// and friend + for int ( or friend for other iter ? )
-				const const_iterator operator+( const size_type n ) const { return const_iterator(ptr_ + n); }
-				//friend const const_iterator operator+( size_type n, const const_iterator &c ) const { return const_iterator(c.ptr_ + n); }
-				//const const_iterator operator+=( const const_iterator &c ) {}
-		//friend const_iterator operator+(size_type n, const const_iterator &other) { return const_iterator(other._ptr + n); }
-
-				// and friend - for int
 				const const_iterator operator-( const size_type n ) const { return const_iterator(ptr_ - n); }
-				const const_iterator operator-( const const_iterator &c ) const { return const_iterator(ptr_ - c.ptr_); }
-				//const const_iterator operator-=( const const_iterator &c ) {}
+				friend const_iterator operator-( size_type n, const const_iterator &c ) { return const_iterator(c.ptr_ - n); }
+				const const_iterator& operator-=( size_type n ) const { ptr_ -= n; return *this; }
 
 			protected:
 				pointer	ptr_;
-			//	value_type*	ptr_;
 		};
 
-		/*
-		class iterator : public const_iterator() {
+		class iterator : public const_iterator {
+			//private:
+			//	typedef const_iterator	cit;//????
+			public:
+				typedef typename Alloc::value_type		value_type;
+				typedef typename Alloc::value_type*		pointer;
+				typedef typename Alloc::reference		reference;
+				typedef typename Alloc::difference_type	difference_type;
+				typedef std::random_access_iterator_tag	iterator_category;
 
-				//typedef T::reference			reference;
+				iterator( pointer ptr = NULL ) : ptr_(ptr) {}
+				iterator( const iterator &ref ) : ptr_(ref.ptr_) {}
+				virtual ~iterator() {}
+				iterator& operator=( const iterator &other ) {
+					if (this != &other)
+						ptr_ = other.ptr_;
+					return *this;
+				}
+
+				reference operator*() const { return *ptr_; }
+				pointer operator->() const { return ptr_; }
+				reference operator[]( size_type n ) const { return ptr_ + n; }
+
+				//bool	operator==( const iterator &rhs ) { return ptr_ == rhs.ptr_; }
+				//bool	operator!=( const iterator &rhs ) { return ptr_ != rhs.ptr_; }
+				//bool	operator<( const iterator &rhs ) { return ptr_ < rhs.ptr_; }
+				//bool	operator<=( const iterator &rhs ) { return ptr_ <= rhs.ptr_; }
+				//bool	operator>( const iterator &rhs ) { return ptr_ > rhs.ptr_; }
+				//bool	operator>=( const iterator &rhs ) { return ptr_ >= rhs.ptr_; }
+
+				iterator& operator++() { ++ptr_; return *this; }
+				iterator operator++( int ) { iterator tmp(*this); ++ptr_; return tmp; }
+				iterator& operator--() { --ptr_; return *this; }
+				iterator operator--( int ) { iterator tmp(*this); --ptr_; return tmp; }
+
+				const iterator operator+( size_type n ) const { return iterator(ptr_ + n); }
+				friend iterator operator+( size_type n, const iterator &c ) { return iterator(c.ptr_ + n); }
+				iterator& operator+=( size_type n ){ ptr_ += n; return *this; }
+
+				const iterator operator-( const size_type n ) const { return iterator(ptr_ - n); }
+				friend iterator operator-( size_type n, const iterator &c ) { return iterator(c.ptr_ - n); }
+				const iterator& operator-=( size_type n ) const { ptr_ -= n; return *this; }
+
+			//protected:
+			//	pointer	ptr_;
 		};
-		*/
 	
 
 		// default
@@ -134,12 +162,8 @@ class ft::vector {
 		*/
 
 		// copy constr
-		vector( const vector& x )
 			//: alloc_(x.alloc_), capacity_(x.capacity_), size_(x.size_)//, arr_(x.arr_)
-			: alloc_(0), capacity_(0), size_(0), arr_(NULL)
-		{
-			*this = x;
-		}
+		vector( const vector& x ) : alloc_(0), capacity_(0), size_(0), arr_(NULL) { *this = x; }
 
 		virtual ~vector() 
 		{
@@ -185,7 +209,6 @@ class ft::vector {
 
 		// allocator
 		allocator_type get_allocator() const { return alloc_; }
-
 		// capacity:
 		size_type	size() const { return size_; }
 		size_type	max_size() const { return alloc_.max_size(); }
