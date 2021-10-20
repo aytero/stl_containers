@@ -57,9 +57,10 @@ int	main() {
 	std::cout << stvf.back() << "\n";
 	stit = stvf.begin();
 	stit1 = stit;
-	stit1 += 1;
+	stit1 += 2;
 	std::cout << "st it arithmetics " << *(1 + stit1)  << "\n";
 	std::cout << "st it arithmetics " << *(stit1 + 1)  << "\n";
+	std::cout << "st it arithmetics, distance " << stit1 - stit  << "\n";
 
 	ft::vector<int>		toIter(3, 15);
 	ft::vector<int>::const_iterator	cit;

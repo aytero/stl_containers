@@ -131,8 +131,9 @@ class ft::vector {
 				friend iterator operator-( size_type n, const iterator &c ) { return iterator(c.ptr_ - n); }
 				const iterator& operator-=( size_type n ) const { ptr_ -= n; return *this; }
 
-			//protected:
-			//	pointer	ptr_;
+			protected:
+				// isnt it inhereted ?
+				pointer	ptr_;
 		};
 	
 
