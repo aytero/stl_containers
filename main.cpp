@@ -5,6 +5,7 @@
 
 int	main() {
 
+	/*
 	ft::stack<int>	em;
 	ft::stack<int>	st;
 
@@ -33,6 +34,7 @@ int	main() {
 ///	catch ( std::out_of_range& oor ) {
 //		std::cerr << "Out of Range error: " << oor.what() << "\n";
 //	}
+*/
 
 	std::vector<int>	stv(3, 8);
 	std::cout << "size: " << stv.size() << "\n";
@@ -48,6 +50,7 @@ int	main() {
 	std::vector<int>	stvf;
 	std::vector<int>::const_iterator	stit;
 	std::vector<int>::const_iterator	stit1;
+	std::vector<int>::iterator			stiter;
 
 	stvf.push_back(1);
 	stvf.push_back(7);
@@ -56,6 +59,7 @@ int	main() {
 	std::cout << stvf.front() << "\n";
 	std::cout << stvf.back() << "\n";
 	stit = stvf.begin();
+	//stiter = stit;
 	stit1 = stit;
 	stit1 += 2;
 	std::cout << "st it arithmetics " << *(1 + stit1)  << "\n";
@@ -63,20 +67,51 @@ int	main() {
 	std::cout << "st it arithmetics, distance " << stit1 - stit  << "\n";
 
 	ft::vector<int>		toIter(3, 15);
+	//ft::vector<int>		toIter;
 	ft::vector<int>::const_iterator	cit;
+	ft::vector<int>::iterator		it;
+
+
+	toIter.push_back(2);
+	toIter.push_back(7);
+	toIter.push_back(5);
+	toIter.push_back(1);
+	toIter.push_back(8);
 
 	cit = toIter.begin();
 
 	std::cout << *cit << "\n";
 	std::cout << *(cit + 2) << "\n";
+	std::cout << *(cit + 4) << "\n";
 
-	toIter.push_back(2);
-	toIter.push_back(7);
-	toIter.push_back(5);
 	cit += 3;
 	std::cout << "it arithmetics " << *(cit) << "\n";
 	std::cout << "it arithmetics " << *(cit + 1) << "\n";
 	std::cout << "it arithmetics " << *(1 + cit) << "\n";
 
+	unsigned int size = toIter.size();
+	for (unsigned int i = 0; i < size; i++)
+		std::cout << toIter[i] << " ";
+	std::cout << "\n";
+
+	it = toIter.begin() + 3;
+	toIter.erase(it);
+
+	size = toIter.size();
+	for (unsigned int i = 0; i < size; i++)
+		std::cout << toIter[i] << " ";
+	std::cout << "\n";
+
+	/*
+	std::vector<int>	svc(3, 5);
+	std::vector<int>::const_iterator	sit = svc.begin();
+
+	std::cout << *sit << "\n";
+
+	ft::vector<int>		vc(3, 5);
+	ft::vector<int>::const_iterator	it = vc.begin();
+
+	std::cout << *it << "\n";
+	*/
 	return 0;
 }
