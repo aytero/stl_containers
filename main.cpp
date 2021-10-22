@@ -88,6 +88,7 @@ int	main() {
 	std::cout << "it arithmetics " << *(cit) << "\n";
 	std::cout << "it arithmetics " << *(cit + 1) << "\n";
 	std::cout << "it arithmetics " << *(1 + cit) << "\n";
+	std::cout << "it arithmetics, distance " << cit - (cit - 2)  << "\n";
 
 	unsigned int size = toIter.size();
 	for (unsigned int i = 0; i < size; i++)
@@ -95,13 +96,22 @@ int	main() {
 	std::cout << "\n";
 
 	it = toIter.begin() + 3;
-	toIter.erase(it);
+	std::cout << *it << "\n";
+	std::cout << it - toIter.begin() << "\n";
+	//toIter.erase(it);
+
+	it = toIter.begin() + 2;
+	toIter.insert(it, 1);
 
 	size = toIter.size();
 	for (unsigned int i = 0; i < size; i++)
 		std::cout << toIter[i] << " ";
 	std::cout << "\n";
+	std::cout << "\n";
 
+	ft::vector<int>::iterator	lil = toIter.begin();
+
+	//std::cout << <<;
 	/*
 	std::vector<int>	svc(3, 5);
 	std::vector<int>::const_iterator	sit = svc.begin();

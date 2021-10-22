@@ -38,8 +38,6 @@ class ft::vector {
 
 	public:
 		class const_iterator {
-			//private:
-			//	typedef const_iterator	cit;//????
 			public:
 				typedef typename Alloc::value_type			value_type;
 				typedef typename Alloc::const_pointer		pointer;// const_pointer
@@ -78,6 +76,9 @@ class ft::vector {
 					{ return const_iterator(c.ptr_ + n); }
 				const_iterator& operator+=( size_type n ){ ptr_ += n; return *this; }
 
+				difference_type operator-( const const_iterator &other )
+					{ return ptr_ - other.ptr_; }
+					//{ return other.ptr_ - ptr_; }
 				const const_iterator operator-( const size_type n ) const
 					{ return const_iterator(ptr_ - n); }
 				friend const_iterator operator-( size_type n, const const_iterator &c )
@@ -90,8 +91,6 @@ class ft::vector {
 		};
 
 		class iterator : public const_iterator {
-			//private:
-			//	typedef const_iterator	cit;//????
 			public:
 				typedef typename Alloc::value_type		value_type;
 				typedef typename Alloc::pointer			pointer;
@@ -99,19 +98,24 @@ class ft::vector {
 				typedef typename Alloc::difference_type	difference_type;
 				typedef std::random_access_iterator_tag	iterator_category;
 
-				iterator( pointer ptr = NULL ) : const_iterator(ptr) {}
-				iterator( const iterator &ref ) : const_iterator(ref.ptr_) {}
+				iterator( pointer ptr = NULL ) : const_iterator(ptr) {
+					ptr_ = ptr;
+					//ptr_ = const_iterator::ptr_;
+					//std::cout << iterator::ptr_ << " lils ptr   " << const_iterator::ptr_ << "\n";
+				}
+				iterator( const iterator &ref ) : const_iterator(ref) { ptr_ = ref.ptr_; }
 				virtual ~iterator() {}
 				iterator& operator=( const iterator &other ) {
 					//return const_iterator::operator=(other);
 					if (this != &other)
 						ptr_ = other.ptr_;
+					//const_iterator::ptr_ = other.const_iterator::ptr_;
 					return *this;
 				}
 
-				reference operator*() const { return ptr_; }
-				pointer operator->() const { return ptr_; }
-				reference operator[]( size_type n ) const { return ptr_ + n; }
+				reference operator*() { return *ptr_; }
+				pointer operator->() { return ptr_; }
+				reference operator[]( size_type n ) { return ptr_ + n; }
 
 				//bool	operator==( const iterator &rhs ) { return ptr_ == rhs.ptr_; }
 				//bool	operator!=( const iterator &rhs ) { return ptr_ != rhs.ptr_; }
@@ -125,16 +129,19 @@ class ft::vector {
 				iterator& operator--() { --ptr_; return *this; }
 				iterator operator--( int ) { iterator tmp(*this); --ptr_; return tmp; }
 
-				const iterator operator+( size_type n ) const { std::cout << "plus\n"; return iterator(ptr_ + n); }
+				const iterator operator+( size_type n ) const { return iterator(ptr_ + n); }
 				friend iterator operator+( size_type n, const iterator &c )
 					{ return iterator(c.ptr_ + n); }
 				iterator& operator+=( size_type n ){ ptr_ += n; return *this; }
 
+				difference_type operator-( const iterator &other )
+					{ return const_iterator::operator-(other); }
 				const iterator operator-( const size_type n ) const
 					{ return iterator(const_iterator::ptr_ - n); }
 				friend iterator operator-( size_type n, const iterator &c )
-					{ return iterator(c.ptr_ - n); }
-				const iterator& operator-=( size_type n ) const { ptr_ -= n; return *this; }
+					{ return iterator(c.const_iterator::ptr_ - n); }
+				const iterator& operator-=( size_type n ) const
+					{ const_iterator::ptr_ -= n; return *this; }
 
 			//private:
 			protected:
@@ -288,17 +295,34 @@ class ft::vector {
 		}
 		void	pop_back() { size_--; }
 
-/*
+
 		// single elem
 		iterator	insert( iterator position, const value_type& val ) {
-			reserve(size_ + 1);
-			for ()// before index
-			arr_[index] = val;
-			for ()//after index
-			size_++;
+			size_type	idx = position - begin();// works wrong bc of bad iterators
+			idx = 3;
+			//size_type	idx = std::distance(position, begin());
+			std::cout << idx << " Index\n";
+
+			reserve(size_);
+			++size_;
+			for (size_type i = idx; i < size_ - 1; ++i)
+				//std::cout << arr_[i] << " ai\n";
+				arr_[i + 1] = arr_[i];
+			arr_[idx] = val;
+			return arr_ + idx;;
 		}
 		// fill
-		void		insert( iterator position, size_type n, const value_type& val ) {}
+		void		insert( iterator position, size_type n, const value_type& val ) {
+			size_type	idx = position - begin();
+			
+			reserve(size_ + n);
+			size_ += n;
+			for (size_type i = idx; i < size_; ++i)
+				arr_[i + n] = arr_[i];
+			for (size_type i = idx; i < n; ++i)
+				arr_[i] = val;
+		}
+		/*
 		// range
 		template < class InputIterator >
 		void		insert( iterator position, InputIterator first, InputIterator last ) {}
@@ -308,17 +332,34 @@ class ft::vector {
 		//iterator erase( iterator position ) {
 
 			size_type	index = position - begin();
-			//if (position != end()) {
+			if (position != end()) {
 				for (size_type i = index; i < size_ - 1; i++)
 					arr_[i] = arr_[i + 1];
-				//reserve(size_ - 1);// reallocate
-			//}
+				reserve(size_ - 1);// reallocate
+			}
 			size_--;
 			return iterator(arr_ + index);
 		}
-		/*
-		iterator erase( iterator first, iterator last );
 
+		iterator erase( iterator first, iterator last ) {
+			size_type	n = std::distance(first, last);
+			size_type	idx = first - begin();
+			
+			pointer		new_arr = alloc_.allocate(size_ - n);
+			size_type	i = 0;
+			while (i++ < idx)
+				new_arr[i] = arr_[i];
+			idx += n;
+			while (i++ > idx)
+				new_arr[i] = arr_[i];
+
+			if (arr_)
+				alloc_.deallocate(arr_, capacity_);
+			arr_ = new_arr;
+			size_ -= n;
+		}
+
+		/*
 		swap();
 		*/
 
