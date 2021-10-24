@@ -100,11 +100,12 @@ int	main() {
 	std::cout << it - toIter.begin() << "\n";
 	//toIter.erase(it);
 
+	//std::cout << *(toIter.begin() + 1)<< " begin\n";
 	it = toIter.begin() + 2;
-	toIter.insert(it, 1);
+	toIter.insert(it, 2, 6);
 
 	size = toIter.size();
-	for (unsigned int i = 0; i < size; i++)
+	for (unsigned int i = 0; i < size; ++i)
 		std::cout << toIter[i] << " ";
 	std::cout << "\n";
 	std::cout << "\n";

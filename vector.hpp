@@ -39,11 +39,13 @@ class ft::vector {
 	public:
 		class const_iterator {
 			public:
-				typedef typename Alloc::value_type			value_type;
-				typedef typename Alloc::const_pointer		pointer;// const_pointer
-				typedef typename Alloc::const_reference		const_reference;
-				typedef typename Alloc::difference_type		difference_type;
-				typedef std::random_access_iterator_tag		iterator_category;
+				typedef typename Alloc::value_type		value_type;
+				typedef typename Alloc::pointer			pointer;// const_pointer
+				//typedef typename Alloc::const_pointer	pointer;// const_pointer
+				typedef typename Alloc::const_reference	reference;
+				//typedef typename Alloc::const_reference	const_reference;
+				typedef typename Alloc::difference_type	difference_type;
+				typedef std::random_access_iterator_tag	iterator_category;
 
 				const_iterator( pointer ptr = NULL ) : ptr_(ptr) {}
 				const_iterator( const const_iterator &ref ) : ptr_(ref.ptr_) {}
@@ -54,9 +56,9 @@ class ft::vector {
 					return *this;
 				}
 
-				const_reference operator*() const { return *ptr_; }
+				reference operator*() const { return *ptr_; }
 				pointer operator->() const { return ptr_; }
-				const_reference operator[]( size_type n ) const { return ptr_ + n; }
+				reference operator[]( size_type n ) const { return ptr_ + n; }
 
 				bool	operator==( const const_iterator &rhs ) { return ptr_ == rhs.ptr_; }
 				bool	operator!=( const const_iterator &rhs ) { return ptr_ != rhs.ptr_; }
@@ -87,7 +89,8 @@ class ft::vector {
 
 			//private:
 			protected:
-				pointer	ptr_;
+				//pointer	ptr_;
+				T*	ptr_;
 		};
 
 		class iterator : public const_iterator {
@@ -135,7 +138,9 @@ class ft::vector {
 				iterator& operator+=( size_type n ){ ptr_ += n; return *this; }
 
 				difference_type operator-( const iterator &other )
-					{ return const_iterator::operator-(other); }
+					{
+						//return const_iterator::operator-(other); }
+						return ptr_ - other.ptr_; }
 				const iterator operator-( const size_type n ) const
 					{ return iterator(const_iterator::ptr_ - n); }
 				friend iterator operator-( size_type n, const iterator &c )
@@ -298,16 +303,12 @@ class ft::vector {
 
 		// single elem
 		iterator	insert( iterator position, const value_type& val ) {
-			size_type	idx = position - begin();// works wrong bc of bad iterators
-			idx = 3;
-			//size_type	idx = std::distance(position, begin());
-			std::cout << idx << " Index\n";
-
-			reserve(size_);
+			size_type	idx = position - begin();
+			
+			reserve(size_ + 1);
 			++size_;
-			for (size_type i = idx; i < size_ - 1; ++i)
-				//std::cout << arr_[i] << " ai\n";
-				arr_[i + 1] = arr_[i];
+			for (size_type i = size_ - 1; i > idx; --i)
+				arr_[i] = arr_[i - 1];
 			arr_[idx] = val;
 			return arr_ + idx;;
 		}
@@ -317,25 +318,42 @@ class ft::vector {
 			
 			reserve(size_ + n);
 			size_ += n;
-			for (size_type i = idx; i < size_; ++i)
-				arr_[i + n] = arr_[i];
-			for (size_type i = idx; i < n; ++i)
+			// size_ - 1 or size_ prob first bc of idx from 0
+			for (size_type i = size_ - 1; i > idx + n - 1; --i)
+				arr_[i] = arr_[i - n];
+			for (size_type i = idx; i < idx + n; ++i)
 				arr_[i] = val;
 		}
-		/*
+/*
+		// finish when able to distinguish int and iter
 		// range
 		template < class InputIterator >
-		void		insert( iterator position, InputIterator first, InputIterator last ) {}
+		void		insert( iterator position, InputIterator first, InputIterator last ) {
+			size_type	n = first - last;
+			size_type	idx = position - first;
+			reserve(size_ + n);
+			size_ += n;
+			size_type	i = size_ - 1;
+			while (i > idx + n - 1) {
+				arr_[i] = arr_[i - n];
+				--i;
+			}
+			//for (size_type i = size_ - 1; i > idx + n - 1; --i)
+			//	arr_[i] = arr_[i - n];
+			while (first != last) {
+				arr_[i] = *first;
+				++first;
+				++i;
+			}
+		}
 */
 
 		iterator erase( iterator position ) {
-		//iterator erase( iterator position ) {
-
 			size_type	index = position - begin();
 			if (position != end()) {
 				for (size_type i = index; i < size_ - 1; i++)
 					arr_[i] = arr_[i + 1];
-				reserve(size_ - 1);// reallocate
+				reserve(size_ - 1);
 			}
 			size_--;
 			return iterator(arr_ + index);
@@ -359,14 +377,28 @@ class ft::vector {
 			size_ -= n;
 		}
 
-		/*
-		swap();
-		*/
+		void	swap( vector &x ) {
+			size_type	tmp_size = x.size();
+			size_type	tmp_cap = x.capacity();
+			pointer		tmp_arr = x.arr_;
+
+			x.size_ = size_;
+			x.capacity_ = capacity_;
+			x.arr_ = arr_;
+			size_ = tmp_size;
+			capacity_ = tmp_cap;
+			arr_ = tmp_arr;
+
+			// or
+			//std::swap(arr_, x.arr_);
+			//std::swap(capacity_, x.capacity_);
+			//std::swap(size_, x.size_);
+		}
 
 		void	clear() {
 			for (size_type i = 0; i < size_; i++)
-				alloc_.destroy(arr_[i]);
-				//alloc_.destroy(arr_ + i);
+				//alloc_.destroy(arr_[i]);
+				alloc_.destroy(arr_ + i);
 			size_ = 0;
 		}
 };
@@ -426,8 +458,6 @@ bool operator>=( const ft::vector<T, Alloc>& lhs,
 template < class T, class Alloc >
 void	swap( ft::vector<T, Alloc>& x, ft::vector<T, Alloc>& y) {
 	x.swap(y);
-	// may leave like this but prob better to reimplement 
-	//or it calls iternal swap which i should write
 }
 
 #endif
