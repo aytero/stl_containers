@@ -4,7 +4,8 @@
 #include <memory>
 #include <iostream>
 #include <exception>
-#include <iterator>
+//#include <iterator>
+#include "reverse_iterator.hpp"
 
 namespace ft
 {
@@ -211,11 +212,12 @@ class ft::vector {
 		const_iterator	begin() const { return const_iterator(arr_); }
 		iterator		end( void ) { return iterator(arr_ + size_); }
 		const_iterator	end( void ) const { return const_iterator(arr_ + size_); }
+
 		/*
 		reverse_iterator		rbegin( void ) { return reverse_iterator(begin()); }
-		reverse_iterator		rend( void );
-		const_reverse_iterator	rbegin( void ) const;
-		const_reverse_iterator	rend( void ) const;
+		reverse_iterator		rend( void ) { return reverse_iterator(end()); }
+		const_reverse_iterator	rbegin( void ) const { return reverse_iterator(begin()); }
+		const_reverse_iterator	rend( void ) const { return reverse_iterator(end()); }
 		*/
 
 		allocator_type get_allocator() const { return alloc_; }
