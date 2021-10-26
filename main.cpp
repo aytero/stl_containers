@@ -3,6 +3,8 @@
 #include <iostream>
 #include <vector>
 
+#include <list>//
+
 int	main() {
 
 	/*
@@ -36,6 +38,7 @@ int	main() {
 //	}
 */
 
+	/*
 	std::vector<int>	stv(3, 8);
 	std::cout << "size: " << stv.size() << "\n";
 	std::cout << "elem [1]: " << stv[1] << "\n";
@@ -112,6 +115,7 @@ int	main() {
 
 	ft::vector<int>::iterator	lil = toIter.begin();
 
+	*/
 	//std::cout << <<;
 	/*
 	std::vector<int>	svc(3, 5);
@@ -124,5 +128,25 @@ int	main() {
 
 	std::cout << *it << "\n";
 	*/
+
+	std::cout << "\n";
+
+	std::list<int>		lst;
+
+	lst.push_back(2);
+	lst.push_back(4);
+	lst.push_back(7);
+
+	std::vector<int>		rr;
+
+	rr.push_back(2);
+	rr.push_back(4);
+	rr.push_back(7);
+
+
+	ft::vector<int>	r(lst.begin(), lst.end());
+	std::cout << r[0] << "\n";
+
+	//ft::vector<int>	rrr(2, 3);
 	return 0;
 }

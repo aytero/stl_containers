@@ -6,6 +6,7 @@
 #include <exception>
 //#include <iterator>
 #include "reverse_iterator.hpp"
+#include "iterator_traits.hpp"
 
 namespace ft
 {
@@ -30,7 +31,7 @@ class ft::vector {
 		//typedef reverse_iterator;
 		//typedef const_reverse_iterator;
 		//typedef unsigned long		size_type;
-		
+
 	private:
 		allocator_type	alloc_;
 		size_type	capacity_;
@@ -155,6 +156,14 @@ class ft::vector {
 				pointer	ptr_;
 		};
 	
+		
+
+
+		typedef typename ft::reverse_iterator<iterator>			reverse_iterator;
+		typedef typename ft::reverse_iterator<const_iterator>	const_reverse_iterator;
+
+
+
 
 		// default
 		explicit vector( const allocator_type& alloc = allocator_type() )
@@ -164,11 +173,11 @@ class ft::vector {
 		explicit vector( size_type n, const value_type& val = value_type(),
 						const allocator_type& alloc = allocator_type() ) 
 				: alloc_(alloc), capacity_(n), size_(n), arr_(alloc_.allocate(n)) {
-			for (size_type i = 0; i < size_; i++)
-				arr_[i] = val;
+			//for (size_type i = 0; i < size_; i++)
+			//	arr_[i] = val;
+			assign(n, val);
 			std::cout << "fill\n";
 		}
-		/*
 		// range
 		// use is integral
 		template < class InputIterator >
@@ -177,9 +186,9 @@ class ft::vector {
 				: alloc_(alloc), capacity_(0), size_(0), arr_(NULL) {
 
 			assign(first, last);
+			//insert(begin(), first, last);
 			std::cout << "range\n";
 		}
-*/
 
 
 		vector( const vector& x ) : alloc_(0), capacity_(0), size_(0), arr_(NULL) { *this = x; }
@@ -213,12 +222,10 @@ class ft::vector {
 		iterator		end( void ) { return iterator(arr_ + size_); }
 		const_iterator	end( void ) const { return const_iterator(arr_ + size_); }
 
-		/*
-		reverse_iterator		rbegin( void ) { return reverse_iterator(begin()); }
-		reverse_iterator		rend( void ) { return reverse_iterator(end()); }
-		const_reverse_iterator	rbegin( void ) const { return reverse_iterator(begin()); }
-		const_reverse_iterator	rend( void ) const { return reverse_iterator(end()); }
-		*/
+		reverse_iterator		rbegin( void ) { return reverse_iterator(end()); }
+		reverse_iterator		rend( void ) { return reverse_iterator(begin()); }
+		const_reverse_iterator	rbegin( void ) const { return const_reverse_iterator(end()); }
+		const_reverse_iterator	rend( void ) const { return conat_reverse_iterator(begin()); }
 
 		allocator_type get_allocator() const { return alloc_; }
 		size_type	size() const { return size_; }
@@ -332,6 +339,7 @@ class ft::vector {
 		template < class InputIterator >
 		void		insert( iterator position, InputIterator first, InputIterator last ) {
 			size_type	n = first - last;
+			//size_type	idx = position.ptr_ - arr_;
 			size_type	idx = position - first;
 			reserve(size_ + n);
 			size_ += n;
@@ -349,6 +357,7 @@ class ft::vector {
 			}
 		}
 */
+
 
 		iterator erase( iterator position ) {
 			size_type	index = position - begin();
