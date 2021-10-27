@@ -11,7 +11,7 @@
 namespace ft
 {
 	template < class T, class Alloc >
-	class vector;
+		class vector;
 }
 
 template < class T, class Alloc = std::allocator<T> >
@@ -399,6 +399,7 @@ class ft::vector {
 			size_ = tmp_size;
 			capacity_ = tmp_cap;
 			arr_ = tmp_arr;
+			// read more about swaps and their optimization 
 
 			// or
 			//std::swap(arr_, x.arr_);

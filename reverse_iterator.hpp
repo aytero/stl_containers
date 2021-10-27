@@ -1,6 +1,8 @@
 #ifndef REVERSE_ITERATOR_HPP
 # define REVERSE_ITERATOR_HPP
 
+#include "iterator_traits.hpp"
+
 namespace ft
 {
 	template <class Iterator>
@@ -12,12 +14,12 @@ class ft::reverse_iterator {
 
 	public:
 		typedef Iterator													iterator_type;
-		typedef typename std::iterator_traits<Iterator>::iterator_category	iterator_category;
-		// std::iterator_traits<Iter>::
-		typedef typename std::iterator_traits<Iterator>::value_type			value_type;
-		typedef typename std::iterator_traits<Iterator>::difference_type	difference_type;
-		typedef typename std::iterator_traits<Iterator>::pointer			pointer;
-		typedef typename std::iterator_traits<Iterator>::reference			reference;
+		typedef typename ft::iterator_traits<Iterator>::iterator_category	iterator_category;
+		// ft::iterator_traits<Iter>::
+		typedef typename ft::iterator_traits<Iterator>::value_type			value_type;
+		typedef typename ft::iterator_traits<Iterator>::difference_type		difference_type;
+		typedef typename ft::iterator_traits<Iterator>::pointer				pointer;
+		typedef typename ft::iterator_traits<Iterator>::reference			reference;
 
 		reverse_iterator() : current_(0) {}
 
