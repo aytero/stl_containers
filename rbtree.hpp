@@ -10,6 +10,7 @@ namespace ft
 		class RBTree;
 }
 
+
 // < ..., class Compare >
 template < class Data, class Alloc = std::allocator<Data> >
 class	ft::RBTree {
@@ -20,9 +21,11 @@ class	ft::RBTree {
 		struct Node	*left;
 		struct Node	*right;
 		bool		color;
+		//enum color_t color;
 	};
 
 	struct Node*	root_;
+	struct Node*	tnull_;
 	Alloc			alloc_;
 
 	Node *get_root( struct Node *n ) {
@@ -31,10 +34,52 @@ class	ft::RBTree {
 		return n;
 	}
 
+	void	printHelper( struct Node *root, std::string indent, bool last ) {
+		//if (root_ != tnull_) {
+		if (root_) {
+			std::cout << indent;
+			if (last) {
+				std::cout << "R--- ";
+				indent += "\t ";
+			} else {
+				std::cout << "L--- ";
+				indent += "|\t";
+			}
+
+			std::string sColor = root->color ? "RED" : "BLACK";
+			std::cout << root->data << "(" << sColor << ")\n";
+			printHelper(root->left, indent, false);
+			printHelper(root->right, indent, true);
+		}
+
+	}
+
+	void printHelper1(const struct Node *root, int lvl)
+	{
+		if (!root)
+			return ;
+		printHelper1(root->right, lvl + 1);
+		for (int i = 0; i < lvl * 4; i++)
+			std::cout << " ";
+		std::cout << root->data << (root->color == RED ? "r" : "b") << std::endl;
+		printHelper1(root->left, lvl + 1);
+	}
+
 	public:
+		enum color_t { BLACK, RED };
 		//typedef struct Node	NodePtr;
 	
-		RBTree( const Alloc& alloc = Alloc()) : root_(NULL), alloc_(alloc) {}
+		RBTree( const Alloc& alloc = Alloc()) : root_(NULL), alloc_(alloc) {
+			/*
+			tnull_ = new Node;
+			tnull_->color = 0;
+			//tnull_->data = 0;
+			tnull_->left = NULL;
+			tnull_->right = NULL;
+			tnull_->parent = NULL;
+			root_ = tnull_;
+			*/
+		}
 
 		~RBTree() { free_node(root_); }
 	
@@ -63,6 +108,7 @@ class	ft::RBTree {
 				p->data = x;
 				p->left = p->right = NULL;
 				p->parent = tmp;
+				p->color = 1;
 				//head_ = p;
 			} else if (x < p->data)
 				p->left = tree_insert(p->left, x);
@@ -82,8 +128,46 @@ class	ft::RBTree {
 			tree_print(p->right);
 		}
 
-		Node*	getRoot() { return root_; }
+		void	treePrint() {
+			if (root_)
+				printHelper1(root_, 0);
+				//printHelper(root_, "", true);
+		}
 
+		Node*	getRoot() { return root_; }
+		//const Node*	getRoot() const { return root_; }
+
+		// constructor, allocator
+		// from ru wiki
+		/*
+		void rotateLeft( struct Node* n ) {
+			struct Node *pivot = NULL;
+
+			pivot->parent = n->parent;
+			if (n->parent != NULL) {
+				if (n->parent->left == n)
+					n->parent->left = pivot;
+				else
+					n->parent->right = pivot;
+			}
+
+			n->right = pivot->left;
+			if (pivot->left != NULL)
+				pivot->left->parent = n;
+
+			n->parent = pivot;
+			pivot->left = n;
+		}
+		*/
+		//rotateRight() {}
+		//colorSwap() {}// or recolor
+		/*
+		//insert() {}
+		// balance after insertion
+		insertCase1() // T is empty
+		insertCase2() // P is black
+		*/
+		//delete() {}// or erase
 };
 
 #endif

@@ -156,9 +156,16 @@ int	main() {
 	tree.tree_insert(tree.getRoot(), 3);
 	tree.tree_insert(tree.getRoot(), 2);
 	tree.tree_insert(tree.getRoot(), -1);
+	tree.tree_insert(tree.getRoot(), 4);
 	tree.tree_insert(tree.getRoot(), 9);
+	tree.tree_insert(tree.getRoot(), -9);
 	//tree.tree_insert(tree.getRoot(), 9);
 	tree.tree_print(tree.getRoot());
 	std::cout << "\n";
+
+	tree.treePrint();
+
+	//tree.rotateLeft(tree.getRoot());
+	//tree.treePrint();
 	return 0;
 }
