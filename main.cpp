@@ -4,6 +4,7 @@
 #include <vector>
 
 #include <list>//
+#include "rbtree.hpp"
 
 int	main() {
 
@@ -148,5 +149,16 @@ int	main() {
 	std::cout << r[0] << "\n";
 
 	//ft::vector<int>	rrr(2, 3);
+	
+	ft::RBTree<int>	tree;
+
+	tree.tree_insert(tree.getRoot(), 8);
+	tree.tree_insert(tree.getRoot(), 3);
+	tree.tree_insert(tree.getRoot(), 2);
+	tree.tree_insert(tree.getRoot(), -1);
+	tree.tree_insert(tree.getRoot(), 9);
+	//tree.tree_insert(tree.getRoot(), 9);
+	tree.tree_print(tree.getRoot());
+	std::cout << "\n";
 	return 0;
 }
