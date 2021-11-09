@@ -6,85 +6,161 @@
 
 namespace ft
 {
-	template < class Data, class Alloc >
+	template < class Data, class Alloc = std::allocator<Data> >
 		class RBTree;
 }
 
 
 // < ..., class Compare >
-template < class Data, class Alloc = std::allocator<Data> >
+template < class Data, class Alloc >
 class	ft::RBTree {
-	struct Node {
-		//int	data;
-		Data		data;
-		struct Node	*parent;
-		struct Node	*left;
-		struct Node	*right;
-		bool		color;
-		//enum color_t color;
-	};
-
-	struct Node*	root_;
-	struct Node*	tnull_;
-	Alloc			alloc_;
-
-	Node *get_root( struct Node *n ) {
-		while (n && n->parent)
-			n = n->parent;
-		return n;
-	}
-
-	void	printHelper( struct Node *root, std::string indent, bool last ) {
-		//if (root_ != tnull_) {
-		if (root_) {
-			std::cout << indent;
-			if (last) {
-				std::cout << "R--- ";
-				indent += "\t ";
-			} else {
-				std::cout << "L--- ";
-				indent += "|\t";
-			}
-
-			std::string sColor = root->color ? "RED" : "BLACK";
-			std::cout << root->data << "(" << sColor << ")\n";
-			printHelper(root->left, indent, false);
-			printHelper(root->right, indent, true);
-		}
-
-	}
-
-	void printHelper1(const struct Node *root, int lvl)
-	{
-		if (!root)
-			return ;
-		printHelper1(root->right, lvl + 1);
-		for (int i = 0; i < lvl * 4; i++)
-			std::cout << " ";
-		std::cout << root->data << (root->color == RED ? "r" : "b") << std::endl;
-		printHelper1(root->left, lvl + 1);
-	}
-
 	public:
 		enum color_t { BLACK, RED };
+
+		struct Node {
+			Data		data;
+			struct Node	*parent;
+			struct Node	*left;
+			struct Node	*right;
+			int			color;
+			//bool		color;
+			//enum color_t color;
+
+			Node( Data data ) {
+				this->data = data;
+				color = RED;
+				left = right = parent = NULL;
+			}
+		};
 		//typedef struct Node	NodePtr;
 	
-		RBTree( const Alloc& alloc = Alloc()) : root_(NULL), alloc_(alloc) {
-			/*
-			tnull_ = new Node;
-			tnull_->color = 0;
-			//tnull_->data = 0;
-			tnull_->left = NULL;
-			tnull_->right = NULL;
-			tnull_->parent = NULL;
-			root_ = tnull_;
-			*/
-		}
+		RBTree() : root_(NULL) {}
+		
+		//RBTree( Data data ) : root_(NULL) {
+		//	
+		//}
+
+		//RBTree( const RBTree &ref ) {}
+		//const RBTree& operator=( const RBTree &other ) {}
 
 		~RBTree() { free_node(root_); }
 	
-		void free_node( struct Node *n )
+		/*
+		struct Node*	insert( struct Node* p, Data x ) {
+			// BST insert 
+			// balance/fix tree
+
+			Node*	tmp = root_;
+			
+			if (p == NULL) {
+				p = new Node;
+				//struct Node *n = alloc_.allocate(1);
+				//new (n) Node(Data);
+				p->data = x;
+				p->left = p->right = NULL;
+				p->parent = tmp;
+				p->color = 1;
+			} else if (x < p->data)
+				p->left = insert(p->left, x);
+			else if (x > p->data)
+				p->right = insert(p->right, x);
+			root_ = get_root(p);
+			return p;
+		}
+		*/
+		void	insert( Data data ) {
+			Node*	node = new Node(data);
+
+			root_ = insertBST(root_, node);
+			balanceInsertRBTree(node);
+			//fixInsertRBTree(node);
+		}
+
+		void	deleteValue( Data data ) {
+			//Node *node = deleteBST(root_, data);
+			//balanceDeleteRBTree(node);
+			
+			deleteBST(root_, data);
+		}
+
+		// private later
+		void	treePrint() {
+			if (root_)
+				printHelper(root_, 0);
+		}
+
+		const Node*	getRoot() const { return root_; }
+
+		// constructor, allocator
+		//colorSwap() {}// or recolor
+		//delete() {}// or erase
+		//getPredecessor
+
+	private:
+		struct Node*	root_;
+		//struct Node*	tnull_;
+		typename Alloc::template rebind<Node>::other alloc_;
+	
+		Node *get_root( struct Node *n ) {
+			while (n && n->parent)
+				n = n->parent;
+			return n;
+		}
+	
+	
+		void printHelper(const struct Node *root, int lvl)
 		{
+			if (!root)
+				return ;
+			printHelper(root->right, lvl + 1);
+			for (int i = 0; i < lvl * 4; i++)
+				std::cout << " ";
+			std::cout << root->data << (root->color == RED ? "r" : "b") << std::endl;
+			printHelper(root->left, lvl + 1);
+		}
+
+		void rotateLeft( Node* n ) {
+			Node *pivot = n->right;
+
+			std::cout << "rl\n";
+
+			pivot->parent = n->parent;
+			if (n->parent != NULL) {
+				if (n->parent->left == n)
+					n->parent->left = pivot;
+				else
+					n->parent->right = pivot;
+			} else
+				root_ = pivot;
+			n->right = pivot->left;
+			if (pivot->left != NULL)
+				pivot->left->parent = n;
+			n->parent = pivot;
+			pivot->left = n;
+		}
+
+		void	rotateRight( Node* n ) {
+			Node*	pivot = n->left;
+
+			std::cout << "rr\n";
+	
+			pivot->parent = n->parent;
+			if (n->parent != NULL) {
+				if (n->parent->left == n)
+					n->parent->left = pivot;
+				else
+					n->parent->right = pivot;
+			} else
+				root_ = pivot;
+			n->left = pivot->right;
+			if (pivot->right != NULL)
+				pivot->right->parent = n;
+			n->parent = pivot;
+			pivot->right = n;
+		}
+
+
+		void free_node( struct Node *n ) {
 			if (!n)
 				return ;
 			free_node(n->left);
@@ -93,81 +169,128 @@ class	ft::RBTree {
 			//alloc_.deallocate(n, 1);
 			delete n;
 		}
-		//void	tree_print( struct Node *p );
-		struct Node*	tree_insert( struct Node* p, Data x ) {
 
-			Node*	tmp = root_;
-			
-			if (p == NULL) {
-				//p = (struct Node*)malloc(sizeof(struct Node));
-				p = new Node;
-				//struct Node *n = alloc_.allocate(1);
-				//new (n) Node(Data);
-		//rbnode *n = _node_alloc.allocate(1);
-		//new (n) rbnode(key);
-				p->data = x;
-				p->left = p->right = NULL;
-				p->parent = tmp;
-				p->color = 1;
-				//head_ = p;
-			} else if (x < p->data)
-				p->left = tree_insert(p->left, x);
-			else if (x > p->data)
-				p->right = tree_insert(p->right, x);
-			
-			root_ = get_root(p);
-			return p;
+		Node*	grandparent( Node *n ) {
+			if (n != NULL && n->parent != NULL)
+				return n->parent->parent;
+			return NULL;
 		}
 
-		void	tree_print( struct Node *p ) {
-			if (p == NULL)
+		Node*	uncle( Node* n ) {
+			Node*	g = grandparent(n);
+			if (g == NULL)
+				return NULL;
+			if (n->parent == g->left)
+				return g->right;
+			return g->left;
+		}
+
+
+		// recolor opts
+		void	insert_case1( Node* n ) {
+
+			std::cout << n->data <<"\n";
+			std::cout << "case1\n";
+				
+			//if (n->data == 8 && n->left) 
+			//o	std::cout << n->left->color << "  color of 4\n";
+			if (n->parent == NULL)
+				n->color = BLACK;
+			else
+				insert_case2(n);
+		}
+
+		void	insert_case2( Node* n ) {
+
+			std::cout << "case2\n";
+			//if (n->data == 11) 
+			//	std::cout << uncle(n)->color << "  color of 4\n";
+
+			if (n->parent->color == BLACK)
 				return ;
-			tree_print(p->left);
-			//printf("%d ", p->data);
-			std::cout << p->data << " ";
-			tree_print(p->right);
+			insert_case3(n);
 		}
 
-		void	treePrint() {
-			if (root_)
-				printHelper1(root_, 0);
-				//printHelper(root_, "", true);
+		void	insert_case3( Node* n ) {
+			Node*	u = uncle(n);
+			Node*	g;
+			std::cout << "case3\n";
+
+			if ((u != NULL) && (u->color == RED)) {
+				n->parent->color = BLACK;
+				u->color = BLACK;
+				g = grandparent(n);
+				g->color = RED;
+				insert_case1(g);
+			} else
+				insert_case4(n);
 		}
 
-		Node*	getRoot() { return root_; }
-		//const Node*	getRoot() const { return root_; }
+		void	insert_case4( Node* n ) {
 
-		// constructor, allocator
-		// from ru wiki
-		/*
-		void rotateLeft( struct Node* n ) {
-			struct Node *pivot = NULL;
+			std::cout << "case4\n";
 
-			pivot->parent = n->parent;
-			if (n->parent != NULL) {
-				if (n->parent->left == n)
-					n->parent->left = pivot;
-				else
-					n->parent->right = pivot;
+			Node *g = grandparent(n);
+			if ((n == n->parent->right) && (n->parent == g->left)) {
+				rotateLeft(n->parent);
+				n = n->left;
+			} else if ((n == n->parent->left) && (n->parent == g->right)) {
+				rotateRight(n->parent);
+				n = n->right;
 			}
-
-			n->right = pivot->left;
-			if (pivot->left != NULL)
-				pivot->left->parent = n;
-
-			n->parent = pivot;
-			pivot->left = n;
+			insert_case5(n);
 		}
-		*/
-		//rotateRight() {}
-		//colorSwap() {}// or recolor
-		/*
-		//insert() {}
-		// balance after insertion
-		insertCase1() // T is empty
-		insertCase2() // P is black
-		*/
-		//delete() {}// or erase
+
+		void	insert_case5( Node* n ) {
+			Node*	g = grandparent(n);
+			std::cout << "case5\n";
+
+			n->parent->color = BLACK;
+			g->color = RED;
+			if ((n == n->parent->left) && (n->parent == g->left))
+				rotateRight(g);
+			else
+				rotateLeft(g);
+		}
+
+
+
+		Node*	insertBST( Node *root, Node *n ) {
+			if (root == NULL)
+				return n;
+			if (n->data < root->data) {
+				root->left = insertBST(root->left, n);
+				root->left->parent = root;
+			} else if (n->data > root->data) {
+				root->right = insertBST(root->right, n);
+				root->right->parent = root;
+			}
+			return root;
+		}
+		
+		void	balanceInsertRBTree( Node* n ) {
+			insert_case1(n);
+		}
+
+		Node*	deleteBST( Node* root, Data data ) {
+			if (root == NULL)
+				return root;
+
+			if (data < root->data)
+				return deleteBST(root->left, data);
+			if (data > root->data)
+				return deleteBST(root->right, data);
+
+			if (root->left == NULL || root->right == NULL)
+				return root;
+
+			//Node*	tmp = minValueNode(root->right);
+			//root->data = tmp->data;
+			//return deleteBST(root->right, tmp->data);
+
+			return root;//tmp
+		}
+
 };
 
 #endif

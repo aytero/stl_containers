@@ -150,20 +150,30 @@ int	main() {
 
 	//ft::vector<int>	rrr(2, 3);
 	
+	std::cout << "\n";
+
 	ft::RBTree<int>	tree;
 
-	tree.tree_insert(tree.getRoot(), 8);
-	tree.tree_insert(tree.getRoot(), 3);
-	tree.tree_insert(tree.getRoot(), 2);
-	tree.tree_insert(tree.getRoot(), -1);
-	tree.tree_insert(tree.getRoot(), 4);
-	tree.tree_insert(tree.getRoot(), 9);
-	tree.tree_insert(tree.getRoot(), -9);
+	tree.insert(8);
+	tree.insert(3);
+	tree.insert(2);
+	tree.insert(-1);
+	tree.insert(4);
+	tree.insert(9);
+
+	tree.treePrint();
+	std::cout << "\n";
+
+	tree.insert(11);
+	//tree.insert(-9);
 	//tree.tree_insert(tree.getRoot(), 9);
-	tree.tree_print(tree.getRoot());
 	std::cout << "\n";
 
 	tree.treePrint();
+	std::cout << "\n";
+	
+	//tree.deleteValue(2);
+	//tree.treePrint();
 
 	//tree.rotateLeft(tree.getRoot());
 	//tree.treePrint();
