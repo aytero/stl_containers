@@ -77,10 +77,11 @@ class	ft::RBTree {
 		}
 
 		void	deleteValue( Data data ) {
-			//Node *node = deleteBST(root_, data);
+			Node *node = findVal(root_, data);
+			deleteNode(node);
 			//balanceDeleteRBTree(node);
 			
-			deleteBST(root_, data);
+			//deleteBST(root_, data);//tmp
 		}
 
 		// private later
@@ -157,17 +158,6 @@ class	ft::RBTree {
 				pivot->right->parent = n;
 			n->parent = pivot;
 			pivot->right = n;
-		}
-
-
-		void free_node( struct Node *n ) {
-			if (!n)
-				return ;
-			free_node(n->left);
-			free_node(n->right);
-			n->~Node();
-			//alloc_.deallocate(n, 1);
-			delete n;
 		}
 
 		Node*	grandparent( Node *n ) {
@@ -272,6 +262,159 @@ class	ft::RBTree {
 			insert_case1(n);
 		}
 
+		void free_node( struct Node *n ) {
+			if (!n)
+				return ;
+			free_node(n->left);
+			free_node(n->right);
+			n->~Node();
+			//alloc_.deallocate(n, 1);
+			delete n;
+		}
+
+
+		Node*	sibling( Node* n ) {
+			if (n == n->parent->left)
+				return n->parent->right;
+			return n->parent->left;
+		}
+
+/*
+	// mb cause of null ptr and not nodes
+	void replaceNode( Node *n, Node *child ) {
+		if (child)
+			child->parent = n->parent;
+		if (n->parent)
+		{
+			if (n == n->parent->left)
+				n->parent->left = child;
+			else
+				n->parent->right = child;
+		} else
+			root_ = child;
+	}
+*/
+
+		Node	*findVal( Node* root, Data data ) {
+			if (root == NULL)
+				return root;
+
+			if (data < root->data)
+				return findVal(root->left, data);
+			if (data > root->data)
+				return findVal(root->right, data);
+
+			if (root->left == NULL || root->right == NULL)
+				return root;
+
+			Node*	tmp = minValueNode(root->right);
+			root->data = tmp->data;
+			return findVal(root->right, tmp->data);
+
+			//return root;//tmp
+		}
+
+		void	replaceNode( Node* n, Node* child ) {
+			child->parent = n->parent;
+			if (n == n->parent->left)
+				n->parent->left = child;
+			else
+				n->parent->right = child;
+		}
+
+		// works with prefound by value node
+		void	deleteNode( Node *n ) {
+			Node*	child = n->right ? n->right : n->left;
+
+			replaceNode(n, child);
+			// && child same cause of null ptrs not nodes
+			if (n->color == BLACK && child) {
+				if (child->color == RED)
+					child->color = BLACK;
+				else
+					delete_case1(child);
+			}
+			//n->~Node();
+			//alloc_.deallocate(n, 1);
+			// or
+			free(n);
+		}
+
+		void	delete_case1( Node* n ) {
+			if (n->parent != NULL)
+				delete_case2(n);
+		}
+
+		void	delete_case2( Node* n ) {
+			Node*	s = sibling(n);
+
+			if (s->color == RED) {
+				n->parent->color = RED;
+				s->color = BLACK;
+				if (n == n->parent->left)
+					rotateLeft(n->parent);
+				else
+					rotateRight(n->parent);
+			}
+			delete_case3(n);
+		}
+
+		void	delete_case3( Node* n ) {
+			Node*	s = sibling(n);
+
+			if (n->parent->color == BLACK && s->color == BLACK
+					&& s->left->color == BLACK && s->right->color == BLACK) {
+				s->color = RED;
+				delete_case1(n->parent);
+			} else
+				delete_case4(n);
+		}
+
+		void	delete_case4( Node* n ) {
+			Node*	s = sibling(n);
+
+			if (n->parent->color == RED && s->color == BLACK
+					&& s->left->color == BLACK && s->right->color == BLACK) {
+				s->color = RED;
+				n->parent->color = BLACK;
+			} else
+				delete_case5(n);
+		
+		}
+
+		void	delete_case5( Node* n ) {
+			Node*	s = sibling(n);
+
+			if (s->color == BLACK) {
+				if (n->parent->left && s->right->color == BLACK && s->left->color == RED) {
+					s->color = RED;
+					s->left->color = BLACK;
+					rotateRight(s);
+				} else if (n == n->parent->right && s->left->color == BLACK && s->right->color == RED) {
+					s->color = RED;
+						s->right->color = BLACK;
+					rotateLeft(s);
+				}
+			}
+			delete_case6(n);
+		}
+
+		void	delete_case6( Node* n ) {
+			Node*	s = sibling(n);
+
+			s->color = n->parent->color;
+			n->parent->color = BLACK;
+
+			if (n == n->parent->left) {
+				s->right->color = BLACK;
+				rotateLeft(n->parent);
+			} else {
+				s->left->color = BLACK;
+				rotateRight(n->parent);
+			}
+		}
+
+		/*
 		Node*	deleteBST( Node* root, Data data ) {
 			if (root == NULL)
 				return root;
@@ -284,13 +427,55 @@ class	ft::RBTree {
 			if (root->left == NULL || root->right == NULL)
 				return root;
 
-			//Node*	tmp = minValueNode(root->right);
-			//root->data = tmp->data;
-			//return deleteBST(root->right, tmp->data);
+			Node*	tmp = minValueNode(root->right);
+			root->data = tmp->data;
+			return deleteBST(root->right, tmp->data);
 
-			return root;//tmp
+			//return root;//tmp
+		}
+*/
+
+		Node*	minValueNode( Node* n ) {
+			Node*	ptr = n;
+			
+			while (ptr->left != NULL)
+				ptr = ptr->left;
+			return ptr;
 		}
 
+		Node*	maxValueNode( Node* n ) {
+			Node*	ptr = n;
+			
+			while (ptr->right != NULL)
+				ptr = ptr->right;
+			return ptr;
+		}
+
+		/*
+		void	balanceDeleteRBTree( Node* node ) {
+			if (node == NULL)
+				return ;
+			if (node == root_) {
+				root_ = NULL;
+				return ;
+			}
+
+			if (node->color == RED || node->left->color == RED || node->right == RED) {
+				;
+				//Node*	child = node->left;
+			} else {
+				;
+			}
+
+			if (node == node->parent->left)
+				node->parent->left = NULL;
+			else
+				node->parent->right = NULL;
+			delete(node);
+			//delete node;
+			root_->color = BLACK;
+		}
+		*/
 };
 
 #endif

@@ -172,8 +172,10 @@ int	main() {
 	tree.treePrint();
 	std::cout << "\n";
 	
-	//tree.deleteValue(2);
-	//tree.treePrint();
+	tree.deleteValue(2);
+	// 2, 8 and 9 work ok
+	//tree.deleteValue(11); //segf
+	tree.treePrint();
 
 	//tree.rotateLeft(tree.getRoot());
 	//tree.treePrint();
