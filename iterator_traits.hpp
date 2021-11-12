@@ -1,6 +1,8 @@
 #ifndef ITERATOR_TRAITS_HPP
 # define ITERATOR_TRAITS_HPP
 //#include ""
+//
+// or type_traits or maybe just traits
 
 namespace ft
 {

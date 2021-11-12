@@ -96,6 +96,8 @@ class	ft::RBTree {
 		//colorSwap() {}// or recolor
 		//delete() {}// or erase
 		//getPredecessor
+		// find val
+		// iterators ? 
 
 	private:
 		struct Node*	root_;
@@ -279,22 +281,6 @@ class	ft::RBTree {
 			return n->parent->left;
 		}
 
-/*
-	// mb cause of null ptr and not nodes
-	void replaceNode( Node *n, Node *child ) {
-		if (child)
-			child->parent = n->parent;
-		if (n->parent)
-		{
-			if (n == n->parent->left)
-				n->parent->left = child;
-			else
-				n->parent->right = child;
-		} else
-			root_ = child;
-	}
-*/
-
 		Node	*findVal( Node* root, Data data ) {
 			if (root == NULL)
 				return root;
@@ -315,18 +301,26 @@ class	ft::RBTree {
 		}
 
 		void	replaceNode( Node* n, Node* child ) {
-			child->parent = n->parent;
-			if (n == n->parent->left)
-				n->parent->left = child;
+			if (child)
+				child->parent = n->parent;
+			std::cout << "replace node\n";
+			if (n->parent) {
+				if (n == n->parent->left)
+					n->parent->left = child;
+				else
+					n->parent->right = child;
+			}
 			else
-				n->parent->right = child;
+				root_ = child;
 		}
 
 		// works with prefound by value node
 		void	deleteNode( Node *n ) {
 			Node*	child = n->right ? n->right : n->left;
 
+
 			replaceNode(n, child);
+			std::cout << "del node\n";
 			// && child same cause of null ptrs not nodes
 			if (n->color == BLACK && child) {
 				if (child->color == RED)
@@ -341,6 +335,7 @@ class	ft::RBTree {
 		}
 
 		void	delete_case1( Node* n ) {
+			std::cout << "del case1\n";
 			if (n->parent != NULL)
 				delete_case2(n);
 		}
@@ -348,6 +343,7 @@ class	ft::RBTree {
 		void	delete_case2( Node* n ) {
 			Node*	s = sibling(n);
 
+			std::cout << "del case2\n";
 			if (s->color == RED) {
 				n->parent->color = RED;
 				s->color = BLACK;
@@ -362,6 +358,7 @@ class	ft::RBTree {
 		void	delete_case3( Node* n ) {
 			Node*	s = sibling(n);
 
+			std::cout << "del case3\n";
 			if (n->parent->color == BLACK && s->color == BLACK
 					&& s->left->color == BLACK && s->right->color == BLACK) {
 				s->color = RED;
@@ -373,6 +370,7 @@ class	ft::RBTree {
 		void	delete_case4( Node* n ) {
 			Node*	s = sibling(n);
 
+			std::cout << "del case4\n";
 			if (n->parent->color == RED && s->color == BLACK
 					&& s->left->color == BLACK && s->right->color == BLACK) {
 				s->color = RED;
@@ -385,6 +383,7 @@ class	ft::RBTree {
 		void	delete_case5( Node* n ) {
 			Node*	s = sibling(n);
 
+			std::cout << "del case5\n";
 			if (s->color == BLACK) {
 				if (n->parent->left && s->right->color == BLACK && s->left->color == RED) {
 					s->color = RED;
@@ -402,6 +401,7 @@ class	ft::RBTree {
 		void	delete_case6( Node* n ) {
 			Node*	s = sibling(n);
 
+			std::cout << "del case6\n";
 			s->color = n->parent->color;
 			n->parent->color = BLACK;
 

@@ -3,6 +3,9 @@
 #include <iostream>
 #include <vector>
 
+#include "utility.hpp"
+#include "type_traits.hpp"
+
 #include <list>//
 #include "rbtree.hpp"
 
@@ -170,14 +173,30 @@ int	main() {
 	std::cout << "\n";
 
 	tree.treePrint();
-	std::cout << "\n";
+	std::cout << "\n\n";
 	
-	tree.deleteValue(2);
+	tree.deleteValue(11);
 	// 2, 8 and 9 work ok
 	//tree.deleteValue(11); //segf
 	tree.treePrint();
 
 	//tree.rotateLeft(tree.getRoot());
 	//tree.treePrint();
+	
+	ft::pair<int, std::string>	pr(1, "hi");
+	ft::pair<int, std::string>	pr1(2, "hey");
+
+	ft::pair<int, std::string>	pr2;
+	pr2 = ft::make_pair(3, "hello");
+
+	std::cout << (pr >= pr1) << "\n";
+	std::cout << pr.first << ", " << pr.second << "\n";
+	std::cout << pr2.first << ", " << pr2.second << "\n";
+
+	bool	ig = true;
+
+	if (ft::is_integral<bool>::ig)
+		std::cout << "it's bool it's integral\n";
+
 	return 0;
 }
