@@ -78,6 +78,44 @@ class	ft::RBTree {
 
 		void	deleteValue( Data data ) {
 			Node *node = findVal(root_, data);
+
+			// not Data but iterator
+			// check if n has only  one !null child
+			/*
+		if(n->left && n->right)
+		{
+			rbnode *p = n->parent;
+			rbnode *nl = n->left;
+			rbnode *nr = n->right;
+			rbnode *s = n->next();
+			rbnode *sp = s->parent;
+			rbnode *sr = s->right;
+			if(p && n==p->left)
+				p->left = s;
+			else if(p && n==p->right)
+				p->right = s;
+			s->parent = p;
+			s->left = nl;
+			if(nl)
+				nl->parent = s;
+			if(s==nr)
+			{
+				s->right = n;
+				n->parent = s;
+			}else{
+				s->right = nr;
+				nr->parent = s;
+				sp->left = n;
+				n->parent = sp;
+			}
+			n->right = sr;
+			if(sr)
+				sr->parent = n;
+			n->left = NULL;
+			_root = get_root(s);
+		}
+		*/
+
 			deleteNode(node);
 			//balanceDeleteRBTree(node);
 			
@@ -98,6 +136,34 @@ class	ft::RBTree {
 		//getPredecessor
 		// find val
 		// iterators ? 
+/*
+	rbnode *find(Key key) const
+	{
+		rbnode *n = _root;
+		while (n)
+			if (_comp(key, n->key))
+				n = n->left;
+			else if (_comp(n->key, key))
+				n = n->right;
+			else
+				break;
+		return n;
+	}
+*/
+		Node*	find( Data data ) const {
+			Node*	node = root_;
+			while (node) {
+				if (data < node->data)
+				//if (cmp_(data, node->data))
+					node = node->left;
+				else if (node->data < data)
+				//else if (cmp_(node->data, data))
+					node = node->right;
+				else
+					break ;
+			}
+			return node;
+		}
 
 	private:
 		struct Node*	root_;
@@ -301,17 +367,18 @@ class	ft::RBTree {
 		}
 
 		void	replaceNode( Node* n, Node* child ) {
+
+			std::cout << "replace node\n";
 			if (child)
 				child->parent = n->parent;
-			std::cout << "replace node\n";
 			if (n->parent) {
 				if (n == n->parent->left)
 					n->parent->left = child;
 				else
 					n->parent->right = child;
-			}
-			else
+			} else {
 				root_ = child;
+			}
 		}
 
 		// works with prefound by value node
@@ -322,11 +389,14 @@ class	ft::RBTree {
 			replaceNode(n, child);
 			std::cout << "del node\n";
 			// && child same cause of null ptrs not nodes
+			//if (n->color == BLACK) {
 			if (n->color == BLACK && child) {
-				if (child->color == RED)
+					std::cout << "EEEE\n";
+				if (child->color == RED) {
 					child->color = BLACK;
-				else
+				} else {
 					delete_case1(child);
+				}
 			}
 			//n->~Node();
 			//alloc_.deallocate(n, 1);

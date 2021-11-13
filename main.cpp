@@ -158,10 +158,16 @@ int	main() {
 	ft::RBTree<int>	tree;
 
 	tree.insert(8);
+	tree.treePrint();
 	tree.insert(3);
+	tree.treePrint();
 	tree.insert(2);
-	tree.insert(-1);
+	tree.treePrint();
+	tree.insert(1);
+	//tree.insert(-1);
+	tree.treePrint();
 	tree.insert(4);
+	tree.treePrint();
 	tree.insert(9);
 
 	tree.treePrint();
@@ -175,9 +181,8 @@ int	main() {
 	tree.treePrint();
 	std::cout << "\n\n";
 	
-	tree.deleteValue(11);
+	tree.deleteValue(4); // wrong balance
 	// 2, 8 and 9 work ok
-	//tree.deleteValue(11); //segf
 	tree.treePrint();
 
 	//tree.rotateLeft(tree.getRoot());
@@ -193,10 +198,10 @@ int	main() {
 	std::cout << pr.first << ", " << pr.second << "\n";
 	std::cout << pr2.first << ", " << pr2.second << "\n";
 
-	bool	ig = true;
+//	bool	ig = true;
 
-	if (ft::is_integral<bool>::ig)
-		std::cout << "it's bool it's integral\n";
+//	if (ft::is_integral<bool>::ig)
+//		std::cout << "it's bool it's integral\n";
 
 	return 0;
 }
