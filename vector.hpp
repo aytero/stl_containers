@@ -7,14 +7,15 @@
 //#include <iterator>
 #include "reverse_iterator.hpp"
 #include "iterator_traits.hpp"
+#include "utility.hpp"
 
 namespace ft
 {
-	template < class T, class Alloc >
+	template < class T, class Alloc = std::allocator<T> >
 		class vector;
 }
 
-template < class T, class Alloc = std::allocator<T> >
+template < class T, class Alloc >
 class ft::vector {
 
 	public:
@@ -502,13 +503,13 @@ bool operator!=( const ft::vector<T, Alloc>& lhs,
 template< class T, class Alloc >
 bool operator<( const ft::vector<T, Alloc>& lhs,
 				const ft::vector<T, Alloc>& rhs) {
-	return lexicographical_compare(lhs.begin, lhs.end(), rhs.begin(), rhs.end());
+	return ft::lexicographical_compare(lhs.begin, lhs.end(), rhs.begin(), rhs.end());
 }
 
 template< class T, class Alloc >
 bool operator<=( const ft::vector<T, Alloc>& lhs,
 				const ft::vector<T, Alloc>& rhs) {
-	return !(rhs <= lhs);
+	return !(rhs < lhs);
 }
 
 template< class T, class Alloc >

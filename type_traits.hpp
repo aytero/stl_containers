@@ -21,10 +21,10 @@ template <class T>
 	struct ft::is_integral : std::false_type {};
 	//struct is_integral : std::integral_constant {};
 
-//template <class T> struct is_integral : false_type {};
-
 template <>
 	struct ft::is_integral<bool> : std::true_type {};
+template <>
+	struct ft::is_integral<char> : std::true_type {};
 
 
 #endif

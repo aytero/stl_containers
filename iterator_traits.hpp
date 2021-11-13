@@ -15,8 +15,8 @@ namespace ft
 }
 
 template <class Iterator>
-class iterator_traits {
-	public:// or use struct not class
+class ft::iterator_traits {
+	public:
 		typedef typename Iterator::difference_type		difference_type;
 		typedef typename Iterator::value_type			value_type;
 		typedef typename Iterator::pointer				pointer;
@@ -25,7 +25,7 @@ class iterator_traits {
 };
 
 template <class T>
-class iterator_traits<T*> {
+class ft::iterator_traits<T *> {
 	public:
 		typedef std::ptrdiff_t	difference_type;
 		typedef T				value_type;
@@ -34,9 +34,10 @@ class iterator_traits<T*> {
 		typedef std::random_access_iterator_tag	iterator_category;
 };
 
+/*
 // const 
 template <class T>
-class iterator_traits<const T*> {
+class ft::iterator_traits<const T*> {
 	public:
 		typedef std::ptrdiff_t	difference_type;
 		typedef T				value_type;
@@ -44,5 +45,5 @@ class iterator_traits<const T*> {
 		typedef T&				reference;
 		typedef std::random_access_iterator_tag	iterator_category;
 };
-
+*/
 #endif

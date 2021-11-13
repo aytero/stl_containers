@@ -24,7 +24,9 @@ class ft::stack {
 		//typedef T& referense;
 		//typedef const T& const_referense;
 
-		explicit stack( const container_type& cntr = container_type() ) : c(cntr) {}
+	//explicit stack(const Container &cont = Container()) : c(cont){}
+//	stack(const stack &other) : c(other.c){}
+		explicit stack( const container_type& ctnr = container_type() ) : c(ctnr) {}
 		stack( const stack& ref ) : c(ref.c) {}
 		virtual ~stack() {}
 		stack& operator=( const stack &other ) {
@@ -63,7 +65,7 @@ bool operator!=( const ft::stack<T, Container>& lhs, const ft::stack<T, Containe
 
 template < class T, class Container >
 bool operator<=( const ft::stack<T, Container>& lhs, const ft::stack<T, Container>& rhs) {
-	return !(rhs <= lhs);
+	return !(rhs < lhs);
 }
 
 template < class T, class Container >

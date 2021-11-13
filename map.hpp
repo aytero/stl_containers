@@ -34,18 +34,29 @@ class ft::map {
 		typedef std::size_t size_type;
 
 		explicit map( const key_compare& comp = key_compare(),
-					const allocator_type& alloc = allocator_type() ) {}
+					const allocator_type& alloc = allocator_type() )
+				: cmp_(comp), alloc_(alloc) {}
 
 		template <class InputIt>
-			map ( InputIt first, InputIt last,
-					const key_compare& comp = key_compare(),
-					const allocator_type& alloc = allocator_type() ) {}
+			map ( InputIt first, InputIt last, const key_compare& comp = key_compare(),
+					const allocator_type& alloc = allocator_type() )
+					: cmp_(comp), alloc_(alloc) {
+				while (first != last) {
+					insert(*first);
+					++first;
+				}
+			}
 
-		map( const map &ref ) {}
+		map( const map &ref ) : cmp_(other.cmp_), alloc_(other.alloc_), rbtree_(ref.rbtree_) {}
 
 		~map() {}
 
-		map& operator=( const map &other ) {}
+		map& operator=( const map &other ) {
+			if (this == &other)
+				return *this;
+			rbtree_ = other.rbtree_;
+			return *this;
+		}
 
 		iterator		begin() {}
 		iterator		end() {}
@@ -57,9 +68,9 @@ class ft::map {
 		const_reverse_iterator	rbegin() const {}
 		const_reverse_iterator	rend() const {}
 
-		bool	empty() const {}
+		bool		empty() const { return rbtree.empty(); }
 		size_type	size() const { return rbtree.size(); }
-		size_type	max_size() const {}
+		size_type	max_size() const { return rbtree.max_size(); }
 
 		// prob a type may be const itself
 		mapped_type& operator[]( const key_type& k ) {}
@@ -70,21 +81,40 @@ class ft::map {
 		iterator insert( iterator position, const value_type& val ) {}
 		// range
 		template <class InputIt>
-			void insert( InputIt first, InputIt last ) {}
+			void insert( InputIt first, InputIt last ) {
+				while (first != last) {
+					rbtree_.insert(first);
+				}
+			}
 
 		void		erase( iterator position) { rbtree.deleteVal(position); }
-		size_type	erase( const key_type& k ) {}
-		void		erase( iterator first, iterator last ) {}
+
+		size_type	erase( const key_type& k ) {
+			iterator	it = find(k);
+			if (it == end())
+				return 0;
+			erase(it);
+			return 1;
+		}
+
+		void		erase( iterator first, iterator last ) {
+			iterator	it;
+			while (first != last) {
+				it = first;
+				++first;
+				erase(it);
+			}
+		}
 
 		// swap() {}
 		void	clear() {}
 
-		key_compare		key_comp() const { return cmp_; }
-		value_compare	value_comp() const {}
+		key_compare		key_comp() const { return key_compare(); }
+		value_compare	value_comp() const { return value_compare(); }
 		allocator_type	get_allocator() const { return alloc_; }
 
-		iterator		find( const key_type& k ) {}
-		const_iterator	find( const key_type& k ) const {}
+		iterator		find( const key_type& k ) { return rbtree_.find(k); }
+		const_iterator	find( const key_type& k ) const { return rbtree_.find(k); }
 
 		size_type	count( const key_type& k ) const {}
 

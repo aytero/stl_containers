@@ -158,16 +158,11 @@ int	main() {
 	ft::RBTree<int>	tree;
 
 	tree.insert(8);
-	tree.treePrint();
 	tree.insert(3);
-	tree.treePrint();
 	tree.insert(2);
-	tree.treePrint();
 	tree.insert(1);
 	//tree.insert(-1);
-	tree.treePrint();
 	tree.insert(4);
-	tree.treePrint();
 	tree.insert(9);
 
 	tree.treePrint();
@@ -200,7 +195,7 @@ int	main() {
 
 //	bool	ig = true;
 
-//	if (ft::is_integral<bool>::ig)
+//	if (ft::is_integral<ig>::value)
 //		std::cout << "it's bool it's integral\n";
 
 	return 0;
