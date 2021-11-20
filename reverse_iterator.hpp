@@ -23,11 +23,16 @@ class ft::reverse_iterator {
 
 		reverse_iterator() : current_(0) {}
 
+	//reverse_iterator(const reverse_iterator &other) : _iter(other._iter) {}
+//	template <typename Iter1>
+//	reverse_iterator(const reverse_iterator<Iter1> &other) : _iter(other.base()) {}
 		explicit reverse_iterator( iterator_type it ) : current_(it) {}
 
+		reverse_iterator( const reverse_iterator &other ) : current_(other.current_) {}
+
 		template <class Iter>
-			// or base()
-		reverse_iterator( const reverse_iterator<Iter>& rev_it ) : current_(rev_it.current_) {}
+		reverse_iterator( const reverse_iterator<Iter>& rev_it ) : current_(rev_it.base()) {}
+		//reverse_iterator( const reverse_iterator<Iter>& rev_it ) : current_(rev_it.current_) {}
 		
 		reverse_iterator& operator=( const reverse_iterator &other ) {
 			if (this != &other)
@@ -38,7 +43,8 @@ class ft::reverse_iterator {
 		virtual ~reverse_iterator() {}
 
 		// offset -1 ?
-		iterator_type	base() const { return current_ - 1; }
+		iterator_type	base() const { return current_; }
+		//iterator_type	base() const { return current_ - 1; }
 
 
 		reference operator*() const {
@@ -47,17 +53,22 @@ class ft::reverse_iterator {
 		}
 		pointer operator->() const { return &(operator*()); }
 		reference operator[]( difference_type n ) { return base()[-n - 1]; }
+		//reference operator[](difference_type n) const { return *(*this + n); }
 
 		reverse_iterator& operator+=( difference_type n ) {
 			current_ -= n;
-			return reverse_iterator(*this);
+			return *this;
+			//return reverse_iterator(*this);
 		}
+
 		reverse_iterator operator+( difference_type n ) const
-			{ return reverse_iterator(iterator_type::operator-(n)); }
+			{ return reverse_iterator(current_ - n); }
+			//{ return reverse_iterator(iterator_type::operator-(n)); }
 		
 		reverse_iterator& operator++() {
 			current_--;
-			return reverse_iterator(*this);
+			return *this;
+			//return reverse_iterator(*this);
 		}
 		//reverse_iterator& operator++() { return reverse_iterator(iterator_type::operator++()); }
 		
@@ -70,15 +81,20 @@ class ft::reverse_iterator {
 
 		reverse_iterator& operator-=( difference_type n ) {
 			current_ += n;
-			return reverse_iterator(*this);
+			return *this;
+			//return reverse_iterator(*this);
 		}
+
 		reverse_iterator operator-( difference_type n ) const
-			{ return reverse_iterator(iterator_type::operator+(n)); }
+			{ return reverse_iterator(current_ + n); }
+			//{ return reverse_iterator(iterator_type::operator+(n)); }
 		
 		reverse_iterator& operator--() {
 			current_++;
-			return reverse_iterator(*this);
+			return *this;
+			//return reverse_iterator(*this);
 		}
+
 		reverse_iterator operator--(int) {
 			reverse_iterator	tmp(current_);
 

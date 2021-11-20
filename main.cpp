@@ -9,6 +9,18 @@
 #include <list>//
 #include "rbtree.hpp"
 
+template <class V>
+void	print_vector( V v ) {
+
+	std::vector<int>::const_iterator	it = v.begin();
+	std::vector<int>::const_iterator	ite = v.end();
+
+	for (; it != ite; ++it) {
+		std::cout << *it << " ";
+	}
+	std::cout << "\n";
+}
+
 int	main() {
 
 	/*
@@ -146,15 +158,32 @@ int	main() {
 	rr.push_back(2);
 	rr.push_back(4);
 	rr.push_back(7);
+	rr.push_back(8);
+	rr.push_back(1);
 
 
-	ft::vector<int>	r(lst.begin(), lst.end());
+	ft::vector<int>	r(rr.begin(), rr.end());
+	//ft::vector<int>	r(lst.begin(), lst.end());
 	std::cout << r[0] << "\n";
 
-	//ft::vector<int>	rrr(2, 3);
+	ft::vector<int>	rrr(2, 3);
 	
 	std::cout << "\n";
 
+	//rr.erase(rr.begin() + 2);
+	rr.erase(rr.begin() + 2, rr.end());
+	print_vector(rr);
+
+	//rr.insert(rr.begin(), 11);
+	//print_vector(rr);
+	//rr.assign(3, 2);
+	//rr.assign(rrr.begin(), rrr.end());
+	//print_vector(rr);
+
+	std::cout << "\n";
+
+
+	/*
 	ft::RBTree<int>	tree;
 
 	tree.insert(8);
@@ -192,6 +221,7 @@ int	main() {
 	std::cout << (pr >= pr1) << "\n";
 	std::cout << pr.first << ", " << pr.second << "\n";
 	std::cout << pr2.first << ", " << pr2.second << "\n";
+	*/
 
 //	bool	ig = true;
 
