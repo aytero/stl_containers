@@ -303,7 +303,13 @@ class ft::vector {
 		void	reserve( size_type n ) {
 			if (n <= capacity_)
 				return ;
+			//std::cout << "aft return\n";
+			//std::cout << capacity_ << " cap | " << n << " n\n";
 			n = std::max(size_ * 2, n);
+			//n = std::max(size_ * 2, size_type(n * 1.3));
+			//std::cout << "testing reserve\n";
+			//std::cout << size_ << " size | " << capacity_ 
+			//	<< " cap | " << n << " n\n"; 
 
 			pointer		new_arr = alloc_.allocate(n);
 
@@ -317,6 +323,8 @@ class ft::vector {
 
 		void	resize( size_type n, value_type val = value_type() ) {
 			reserve(n);
+			//for (size_type i = size_ - 1; i < n; ++i)
+			//	arr_[i] = val;
 			while (size_ < n)
 				arr_[size_++] = val;
 			size_ = n;
@@ -382,19 +390,17 @@ class ft::vector {
 
 		// single elem
 		iterator	insert( iterator position, const value_type& val ) {
-			/*
 			size_type	idx = position - begin();
 			
 			reserve(size_ + 1);
-			++size_;
-			for (size_type i = size_ - 1; i > idx; --i)
+			for (size_type i = size_; i > idx; --i)
 				arr_[i] = arr_[i - 1];
 			arr_[idx] = val;
+			++size_;
 			return arr_ + idx;;
-			*/
-			size_type	idx = position - begin();
-			insert(position, 1, val);
-			return arr_ + idx; // or position, but such iterator would be invalid
+			//size_type	idx = position - begin();
+			//insert(position, 1, val);
+			//return iterator(arr_ + idx); // or position, but such iterator would be invalid
 		}
 		// fill
 		void		insert( iterator position, size_type n, const value_type& val ) {
@@ -493,21 +499,24 @@ class ft::vector {
 	*/
 		iterator erase( iterator position ) {
 			size_type	index = position - begin();
-			if (position != end()) {
+			//if (position != end()) {
 				for (size_type i = index; i < size_ - 1; i++)
 					arr_[i] = arr_[i + 1];
-				reserve(size_ - 1);
-			}
+				//reserve(size_ - 1);
+			//}
 			size_--;
 			return iterator(arr_ + index);
 		}
 
 		iterator erase( iterator first, iterator last ) {
 			size_type	count = last - first;
-			//size_type	n = std::distance(first, last);
 			size_type	idx = first - begin();
-			pointer		new_arr = alloc_.allocate(size_ - count);
-			//pointer		new_arr = alloc_.allocate((size_ - count) * 2);
+
+			for (size_type i = idx; i < size_ - count; i++)
+				arr_[i] = arr_[i + count];
+			size_ -= count;
+			/*
+			pointer		new_arr = alloc_.allocate(size_ - count);// * 2
 			size_type	i = 0;
 
 			while (i++ < idx)
@@ -516,33 +525,34 @@ class ft::vector {
 			while (i++ < size_)
 				//smth is wrong with indexes
 				new_arr[i - count] = arr_[i];
-
 			if (arr_)
 				alloc_.deallocate(arr_, capacity_);
 			arr_ = new_arr;
 			size_ -= count;
+			*/
 			return iterator(arr_ + idx);
 		}
 
 		void	swap( vector &x ) {
-			/*
 			size_type	tmp_size = x.size();
 			size_type	tmp_cap = x.capacity();
 			pointer		tmp_arr = x.arr_;
+			// alloc
 
 			x.size_ = size_;
 			x.capacity_ = capacity_;
 			x.arr_ = arr_;
+			
 			size_ = tmp_size;
 			capacity_ = tmp_cap;
 			arr_ = tmp_arr;
-			*/
 			// read more about swaps and their optimization 
 
 			// or
-			std::swap(arr_, x.arr_);
-			std::swap(capacity_, x.capacity_);
-			std::swap(size_, x.size_);
+			//std::swap(arr_, x.arr_);
+			//std::swap(capacity_, x.capacity_);
+			//std::swap(size_, x.size_);
+			// or std::move()
 		}
 
 		void	clear() {

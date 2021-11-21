@@ -4,6 +4,16 @@
 #include <vector>
 
 template <class T>
+	void	printContainer( T v ) {
+		std::vector<int>::const_iterator	it = v.begin();
+		std::vector<int>::const_iterator	ite = v.end();
+
+		for (; it != ite; ++it)
+			std::cout << *it << " ";
+		std::cout << "\n";
+	}
+
+template <class T>
 int run_vector_unit_test(std::string test_name, std::vector<int> (func1)(std::vector<T>), std::vector<int> (func2)(ft::vector<T>)) {
     int    result;
     int    leaks;
@@ -19,14 +29,20 @@ int run_vector_unit_test(std::string test_name, std::vector<int> (func1)(std::ve
 	//std::cout << "HERE\n";
 	res2 = func2(my_vector);
 	//std::cout << "HERE2\n";
-	//if (res1 == res2) {
+	if (res1 == res2) {
 	    //printElement("OK");
-	  //  result = 0;
-//	}
-//	else {
+		std::cout << "OK\n";
+		result = 0;
+	}
+	else {
 	    //printElement("FAILED");
-//	    result = 1;
-//	}
+		std::cout << "\n";
+		printContainer(res1);
+		std::cout << "\n";
+		printContainer(res2);
+		std::cout << "Failed\n";
+	    result = 1;
+	}
 	/*
 	t1 = g_end1 - g_start1, t2 = g_end2 - g_start2;
 	(t1 >= t2) ? printElement(GREEN + std::to_string(t2) + "ms" + RESET) : printElement(REDD + std::to_string(t2) + "ms" + RESET);
@@ -36,7 +52,7 @@ int run_vector_unit_test(std::string test_name, std::vector<int> (func1)(std::ve
 	*/
 
 	//return !(!result && !leaks);
-	return (0);
+	return result;
 }
 /*
 
@@ -131,7 +147,7 @@ int main() {
     exit(run_vector_unit_test<int>("insert(value)", insert_test_1, insert_test_1));
 }
 */
-
+/*
 template <typename T>
 std::vector<int> erase_test_2(std::vector<T> vector) {
     std::vector<int> v;
@@ -164,3 +180,52 @@ int main() {
 
     exit(run_vector_unit_test<int>("erase(range)", erase_test_2, erase_test_2));
 }
+*/
+template <typename T>
+std::vector<int> resize_test(std::vector<T> vector) {
+    std::vector<int> v;
+    vector.assign(99000000, 1);
+//    g_start1 = timer();
+    vector.resize(50000000);
+    vector.reserve(50000000);
+    v.push_back(vector.size());
+    v.push_back(vector.capacity());
+    vector.resize(70000000);
+    v.push_back(vector.size());
+    v.push_back(vector.capacity());
+    vector.resize(153000000, T());
+    v.push_back(vector.size());
+    v.push_back(vector.capacity());
+    v.push_back(vector[65]);
+    //g_end1 = timer();
+    return v;
+}
+
+template <typename T>
+std::vector<int> resize_test(ft::vector<T> vector) {
+    std::vector<int> v;
+    vector.assign(99000000, 1);
+   // g_start2 = timer();
+    vector.resize(50000000);
+    vector.reserve(50000000);
+    v.push_back(vector.size());
+    v.push_back(vector.capacity());
+    vector.resize(70000000);
+    v.push_back(vector.size());
+    v.push_back(vector.capacity());
+	std::cout << "testing reserve before\n";
+	std::cout << vector.capacity() << " HERE IN\n";
+    vector.resize(153000000, T());
+    v.push_back(vector.size());
+    v.push_back(vector.capacity());
+	std::cout << vector.capacity() << " HERE IN\n";
+    v.push_back(vector[65]);
+   // g_end2 = timer();
+    return v;
+}
+
+int main() {
+
+    exit(run_vector_unit_test<int>("resize()", resize_test, resize_test));
+}
+
