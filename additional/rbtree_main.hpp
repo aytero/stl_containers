@@ -3,13 +3,16 @@
 
 #include <iostream>
 
+
 namespace ft
 {
-	template < class Data, class Compare = std::less<Data>, class Alloc = std::allocator<Data> >
+	template < class Data, class Alloc = std::allocator<Data> >
 		class RBTree;
 }
 
-template < class Data, class Compare, class Alloc >
+
+// < ..., class Compare >
+template < class Data, class Alloc >
 class	ft::RBTree {
 	public:
 		enum color_t { BLACK, RED };
@@ -20,7 +23,7 @@ class	ft::RBTree {
 			struct Node	*left;
 			struct Node	*right;
 			int			color;
-			//bool		is_black;
+			//bool		color;
 			//enum color_t color;
 
 			Node( Data data ) {
