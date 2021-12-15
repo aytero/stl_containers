@@ -3,6 +3,25 @@
 
 #include <iostream>
 
+/*
+struct Node {
+	Data		data;
+	struct Node	*parent;
+	struct Node	*left;
+	struct Node	*right;
+	bool		is_black;
+	//enum color_t color;
+
+	Node( Data data ) {
+		this->data = data;
+		is_black = true;
+		left = right = parent = NULL;
+	}
+	//op=
+};
+*/
+
+// mb no namespace ?
 namespace ft
 {
 	template < class Data, class Compare = std::less<Data>, class Alloc = std::allocator<Data> >
@@ -65,12 +84,28 @@ class	ft::RBTree {
 			return p;
 		}
 		*/
-		void	insert( Data data ) {
+
+		//ft::pair<iterator, bool> /*pohui*/ insert(value_type const &value){
+		//return ft::pair<iterator, bool>
+		void	insert( const Data& data ) {
 			Node*	node = new Node(data);
 
 			root_ = insertBST(root_, node);
 			balanceInsertRBTree(node);
 			//fixInsertRBTree(node);
+		}
+
+		iterator insert( iterator position, const Data& data ) {
+			;
+		}
+
+		//const_iterator insert( const_iterator position, const Data& data ) {
+		//	;
+		//}
+
+		template<class InputIt>
+		void insert(typename ft::enable_if< !ft::is_integral<InputIt>::value, InputIt >::type first,
+				InputIt last) {
 		}
 
 		void	deleteValue( Data data ) {
