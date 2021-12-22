@@ -85,7 +85,7 @@ class	ft::RBTree {
 		}
 		*/
 
-		//ft::pair<iterator, bool> /*pohui*/ insert(value_type const &value){
+		//ft::pair<iterator, bool> insert(const value_type &value){
 		//return ft::pair<iterator, bool>
 		void	insert( const Data& data ) {
 			Node*	node = new Node(data);
@@ -95,18 +95,23 @@ class	ft::RBTree {
 			//fixInsertRBTree(node);
 		}
 
+		/*
 		iterator insert( iterator position, const Data& data ) {
 			;
 		}
-
+*/
 		//const_iterator insert( const_iterator position, const Data& data ) {
 		//	;
 		//}
-
+	
+		/*
 		template<class InputIt>
-		void insert(typename ft::enable_if< !ft::is_integral<InputIt>::value, InputIt >::type first,
-				InputIt last) {
+		void insert(typename ft::enable_if< !ft::is_integral<InputIt>::value,
+				InputIt >::type first, InputIt last) {
+				for (; first != last; ++first)
+					insert(*first);
 		}
+		*/
 
 		void	deleteValue( Data data ) {
 			Node *node = findVal(root_, data);

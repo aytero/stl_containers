@@ -86,7 +86,7 @@ class ft::vector {
 
 				const const_iterator operator+( size_type n ) const { return const_iterator(ptr_ + n); }
 				friend const_iterator operator+( size_type n, const const_iterator &c ) { return const_iterator(c.ptr_ + n); }
-				const_iterator& operator+=( size_type n ){ ptr_ += n; return *this; }
+				const_iterator& operator+=( size_type n ) { ptr_ += n; return *this; }
 
 				difference_type operator-( const const_iterator &other ) const { return ptr_ - other.ptr_; }
 				const_iterator operator-( const size_type n ) const { return const_iterator(ptr_ - n); }
@@ -387,21 +387,23 @@ class ft::vector {
 		}
 		void	pop_back() { size_--; }
 
-
 		// single elem
 		iterator	insert( iterator position, const value_type& val ) {
-			size_type	idx = position - begin();
+			difference_type	idx = position - begin();
+			//size_type	idx = position - begin();
 			
 			reserve(size_ + 1);
 			for (size_type i = size_; i > idx; --i)
 				arr_[i] = arr_[i - 1];
 			arr_[idx] = val;
 			++size_;
-			return arr_ + idx;;
+			return begin() + idx;
+			//return arr_ + idx;
 			//size_type	idx = position - begin();
 			//insert(position, 1, val);
 			//return iterator(arr_ + idx); // or position, but such iterator would be invalid
 		}
+
 		// fill
 		void		insert( iterator position, size_type n, const value_type& val ) {
 			size_type	idx = position - begin();

@@ -174,8 +174,8 @@ int	main() {
 	rr.erase(rr.begin() + 2, rr.end());
 	print_vector(rr);
 
-	//rr.insert(rr.begin(), 11);
-	//print_vector(rr);
+	rr.insert(rr.begin(), 11);
+	print_vector(rr);
 	//rr.assign(3, 2);
 	//rr.assign(rrr.begin(), rrr.end());
 	//print_vector(rr);

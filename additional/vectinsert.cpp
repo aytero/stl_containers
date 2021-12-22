@@ -1,6 +1,6 @@
 //#include "../system/system_methods.ipp"
 //#include "__service.ipp"
-#include "vector.hpp"
+#include "../vector.hpp"
 #include <vector>
 
 template <class T>
@@ -54,8 +54,8 @@ int run_vector_unit_test(std::string test_name, std::vector<int> (func1)(std::ve
 	//return !(!result && !leaks);
 	return result;
 }
-/*
 
+///////////// insert test ///////////////
 class B {
 public:
 	char *l;
@@ -146,7 +146,9 @@ int main() {
 
     exit(run_vector_unit_test<int>("insert(value)", insert_test_1, insert_test_1));
 }
-*/
+
+////////
+
 /*
 template <typename T>
 std::vector<int> erase_test_2(std::vector<T> vector) {
@@ -181,6 +183,7 @@ int main() {
     exit(run_vector_unit_test<int>("erase(range)", erase_test_2, erase_test_2));
 }
 */
+/*
 template <typename T>
 std::vector<int> resize_test(std::vector<T> vector) {
     std::vector<int> v;
@@ -226,6 +229,6 @@ std::vector<int> resize_test(ft::vector<T> vector) {
 
 int main() {
 
-    exit(run_vector_unit_test<int>("resize()", resize_test, resize_test));
+    //exit(run_vector_unit_test<int>("resize()", resize_test, resize_test));
 }
-
+*/
