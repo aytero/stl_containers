@@ -31,43 +31,98 @@ class TreeIterator {
 		//methods
 
 		TreeIterator() {}
-		TreeIterator( const TreeIterator &ref ) {}
-		~TreeIterator() {}
-		TreeIterator& operator=( const TreeIterator &other ) {}
 
-		reference operator*() { return *ptr_; }
-		pointer operator->() { return ptr_; }
+		//TreeIter(const TreeIter<typename ft::remove_const<value_type>::type > & other)//: _node(other.node()) {}
+		TreeIterator( const TreeIterator &ref ) {
+			*this = ref;
+		}
+
+		~TreeIterator() {}
+
+		//TreeIter& operator=(const TreeIter<typename ft::remove_const<value_type>::type>& other) {
+		TreeIterator& operator=( const TreeIterator &other ) {
+			if (this != &other)
+				ptr_ = other.ptr_;
+			return *this;
+		}
+
+		reference operator*() const { return *(ptr_->data); }
+		pointer operator->() const { return ptr_->data; }
 
 		TreeIterator& operator++() {
-			//++ptr_;
-			//return *this;
+			if (ptr_->right && !ptr_->right->is_nil) {
+				ptr_ = tree_min(ptr_->right);
+			} else {
+				node_ptr tmp = ptr_->parent;
+				while (tmp != NULL && ptr_ == tmp->right) {
+					ptr_ = tmp;
+					tmp = tmp->parent;
+				}
+				ptr_ = tmp;
+			}
+			return *this;
 		}
 
 		TreeIterator operator++( int ) {
-			//TreeIterator tmp(*this);
-			//++ptr_;
-			//return tmp;
+			TreeIterator<value_type> tmp(*this);
+
+			if (!ptr_->right->is_nil) {
+				ptr_ = tree_min(ptr_->right);
+			} else {
+				node_ptr p = ptr_->parent;
+				while (p != NULL && ptr_ == p->right) {
+					ptr_ = p;
+					p = p->parent;
+				}
+				ptr_ = p;
+			}
+
+			return tmp;
 		}
 
 		TreeIterator& operator--() {
-			//--ptr_;
-			//return *this;
+			if (ptr_->left && !ptr_->left->is_nil) {
+				ptr_ = tree_max(ptr_->left);
+			} else {
+				node_ptr p = ptr_->parent;
+				while (p != NULL && ptr_ == p->left) {
+					ptr_ = p;
+					p = p->parent;
+				}
+				ptr_ = p;
+			}
+			return *this;
 		}
 
 		TreeIterator operator--( int ) {
-			//TreeIterator tmp(*this);
-			//--ptr_;
-			//return tmp;
+			TreeIterator<value_type> tmp(*this);
+
+			if (ptr_->left && !ptr_->left->is_nil) {
+				ptr_ = tree_max(ptr_->left);
+			} else {
+				node_ptr p = ptr_->parent;
+				while (p != NULL && ptr_ == p->left) {
+					ptr_ = p;
+					p = p->parent;
+				}
+				ptr_ = p;
+			}
+			return tmp;
 		}
+
+		node_ptr getNode() const {
+			return ptr_;
+		}
+
 };
 
 template <class A, class B>
 	bool operator==( const TreeIterator<A> &lhs, const TreeIterator<B> &rhs ) {
-		return lhs.ptr_() == rhs.ptr_();
+		return lhs.getNode() == rhs.getNode();
 	}
 
 template <class A, class B>
 	bool operator!=( const TreeIterator<A> &lhs, const TreeIterator<B> &rhs ) {
-		return lhs.ptr_() != rhs.ptr_();
+		return lhs.getNode() != rhs.getNode();
 
 #endif
