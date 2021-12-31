@@ -85,15 +85,23 @@ class map {
 			return tree_.begin();
 		}
 
+		//const_iterator begin() const {}
+
 		iterator end() {
 			return tree_.end();
 		}
 
-		reverse_iterator rbegin() const {
+		//const_iterator end() const {}
+		
+		//reverse_iterator rbegin() {}
+
+		const_reverse_iterator rbegin() const {
 			return tree_.rbegin();
 		}
 
-		reverse_iterator rend() const {
+		//reverse_iterator rend() {}
+
+		const_reverse_iterator rend() const {
 			return tree_.rend();
 		}
 
@@ -101,55 +109,63 @@ class map {
 		size_type	size() const { return tree_.size(); }
 		size_type	max_size() const { return tree_.max_size(); }
 
-		// prob a type may be const itself
-		mapped_type& operator[]( const key_type& k ) {
-			return ;
+		mapped_type& operator[]( const key_type& key ) {
+			return (*((insert(ft::make_pair(key, mapped_type()))).first)).second;
 		}
-		/*
-		mapped_type& operator[](const key_type& key){
-			//make_pair(key, mapped_type());
-		//	return	_tree.insert(make_pair(key, mapped_type())).first->second;
-			return (*((this->insert(ft::make_pair(key,mapped_type()))).first)).second;
-		}
-*/
 
 		// single elem
-		pair<iterator,bool> insert( const value_type& val ) {}
+		pair<iterator, bool> insert( const value_type& val ) {
+			return tree_.insert(val);
+		}
 		// with hint
-		iterator insert( iterator position, const value_type& val ) {}
+		iterator insert( iterator position, const value_type& val ) {
+			return tree_.insert(position, val);
+		}
 		// range
 		template <class InputIt>
-			void insert( InputIt first, InputIt last ) {
-				while (first != last) {
-					tree_.insert(first);
-				}
+			//void insert( InputIt first, InputIt last ) {
+			void insert( typename enable_if<!is_integral<InputIt>::value, InputIt>::type first,
+						InputIt last ) {
+				tree_.insert(first, last);
+				//while (first != last) {
+				//	tree_.insert(first);
+				//}
 			}
 
-		void		erase( iterator position) { tree_.deleteVal(position); }
+		void erase( iterator position ) {
+			//tree_.deleteVal(position);
+			tree_.erase(position);
+		}
 
-		size_type	erase( const key_type& k ) {
+		size_type erase( const key_type& k ) {
+			/*
 			iterator	it = find(k);
 			if (it == end())
 				return 0;
 			erase(it);
 			return 1;
+			*/
+			return tree_.erase(make_pair(k, mapped_type()));
 		}
 
-		void		erase( iterator first, iterator last ) {
+		void erase( iterator first, iterator last ) {
+			/*
 			iterator	it;
 			while (first != last) {
 				it = first;
 				++first;
 				erase(it);
-			}
+			}*/
+			tree_.erase(first, last);
 		}
 
-		void swap( map &other ) {
+		void swap( map<Key,T,Compare,Allocator> &other ) {
+		//void swap( map &other ) {
 			std::swap(this->cmp_, other.cmp_);
 			tree_.swap(other.tree_);
 		}
 
-		void	clear() {
+		void clear() {
 			tree_.clear();
 		}
 
@@ -158,41 +174,17 @@ class map {
 		allocator_type	get_allocator() const { return tree_.get_allocator(); }
 		//allocator_type	get_allocator() const { return alloc_; }
 
-		iterator		find( const key_type& k ) {
+		iterator find( const key_type& k ) {
 			//return tree_.find(k);
 			return tree_.find(make_pair(k, mapped_type()));
 		}
 
-		size_type	count( const key_type& k ) const {
+		//const_iterator find( const key_type& k ) const {}
+
+		size_type count( const key_type& k ) const {
 			return tree_.count(make_pair(k, mapped_type()));
 		}
 	
-		/*
-		iterator lower_bound(const key_type& key){
-			return (_tree.lower_bound(make_pair(key, mapped_type())));
-		}	
-
-		const_iterator lower_bound(const key_type& key) const{
-			return (_tree.lower_bound(make_pair(key, mapped_type())));
-		}	
-
-		iterator upper_bound(const key_type& key){
-			return (_tree.upper_bound(make_pair(key, mapped_type())));
-		}	
-
-		const_iterator upper_bound(const key_type& key) const{
-			return (_tree.upper_bound(make_pair(key, mapped_type())));
-		}
-
-		pair<iterator, iterator> equal_range(const key_type & key){
-			return (_tree.equal_range(make_pair(key, mapped_type())));
-		}	
-
-		pair<const_iterator, const_iterator> equal_range(const key_type & key) const{
-			return (_tree.equal_range(make_pair(key, mapped_type())));
-		}	
-*/
-
 		iterator lower_bound( const key_type& k ) {
 			return tree_.lower_bound(make_pair(k, mapped_type()));
 		}
@@ -209,14 +201,56 @@ class map {
 			return tree_.upper_bound(make_pair(k, mapped_type()));
 		}
 
-		pair<iterator,iterator>	equal_range( const key_type& k) {}
-		pair<const_iterator,const_iterator>	equal_range( const key_type& k) const {}
+		pair<iterator, iterator> equal_range( const key_type& k) {
+			return tree_.equal_range(make_pair(k, mapped_type()));
+		}
 
+		pair<const_iterator, const_iterator> equal_range( const key_type& k) const {
+			return tree_.equal_range(make_pair(k, mapped_type()));
+		}
 };
 
-// all relational operators
-// swap
+template <class Key, class T, class Compare, class Allocator>
+	bool operator==( const map<Key,T,Compare,Allocator>& lhs,
+					const map<Key,T,Compare,Allocator>& rhs) {
+		return lhs.tree_ == rhs.tree_;
+	}
 
+template <class Key, class T, class Compare, class Allocator>
+	bool operator!=( const map<Key,T,Compare,Allocator>& lhs,
+					const map<Key,T,Compare,Allocator>& rhs) {
+		return !(lhs == rhs);
+	}
+
+template <class Key, class T, class Compare, class Allocator>
+	bool operator<( const map<Key,T,Compare,Allocator>& lhs,
+					const map<Key,T,Compare,Allocator>& rhs) {
+		return lhs.tree_ < rhs.tree_;
+	}
+
+template <class Key, class T, class Compare, class Allocator>
+	bool operator>( const map<Key,T,Compare,Allocator>& lhs,
+					const map<Key,T,Compare,Allocator>& rhs) {
+		return rhs_ < lhs_;
+	}
+
+template <class Key, class T, class Compare, class Allocator>
+	bool operator<=( const map<Key,T,Compare,Allocator>& lhs,
+					const map<Key,T,Compare,Allocator>& rhs) {
+		return !(rhs < lhs);
+	}
+
+template <class Key, class T, class Compare, class Allocator>
+	bool operator>=( const map<Key,T,Compare,Allocator>& lhs,
+					const map<Key,T,Compare,Allocator>& rhs) {
+		return !(lhs_ < rhs_);
+	}
+
+template <class key, class T, class Compare, class Allocator>
+	void swap( map<Key,T,Compare,Allocator>& lhs,
+			map<Key,T,Compare,Allocator>& rhs ) {
+		lhs.swap(rhs);
+	}
 }
 
 #endif

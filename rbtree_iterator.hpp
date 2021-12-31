@@ -5,30 +5,25 @@ template <typename T>
 class TreeIterator {
 	Node*	ptr_;
 
-	/*
-		node_pointer tree_min(node_pointer n) const {
+		node_ptr tree_min( node_ptr n ) const {
 			while(n->left != NULL && !n->left->is_nil)
 				n = n->left;
 			return n;
 		}
 
-		node_pointer tree_max(node_pointer n) const {
+		node_ptr tree_max( node_ptr n ) const {
 			while (!n->right->is_nil)
 				n = n->right;
 			return n;
 		}
-		*/
 
 	public:
-		//typedefs
 		typedef std::bidirectional_iterator_tag						iterator_category;
 		typedef typename ft::iterator_traits<T*>::value_type		value_type;
 		typedef typename ft::iterator_traits<T*>::reference			reference;
 		typedef typename ft::iterator_traits<T*>::pointer			pointer;
 		typedef typename ft::iterator_traits<T*>::difference_type	difference_type;
 		typedef Node<typename ft::remove_const<value_type>::type >* node_ptr;
-
-		//methods
 
 		TreeIterator() {}
 

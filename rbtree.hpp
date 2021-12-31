@@ -22,14 +22,16 @@ struct Node {
 */
 
 // mb no namespace ?
+/*
 namespace ft
 {
 	template < class Data, class Compare = std::less<Data>, class Alloc = std::allocator<Data> >
 		class RBTree;
 }
+*/
 
 template < class Data, class Compare, class Alloc >
-class	ft::RBTree {
+class	RBTree {
 	public:
 		enum color_t { BLACK, RED };
 

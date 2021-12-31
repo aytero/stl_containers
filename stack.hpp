@@ -16,7 +16,7 @@ class ft::stack {
 		typedef typename Container::size_type	size_type;
 		typedef Container						container_type;
 
-		explicit stack( const container_type& ctnr = container_type() ) : c(ctnr) {}
+		explicit stack( const container_type& cont = container_type() ) : c(cont) {}
 
 		stack( const stack& ref ) : c(ref.c) {}
 
