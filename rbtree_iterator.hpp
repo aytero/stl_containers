@@ -1,9 +1,61 @@
 #ifndef RBTREE_ITERATOR_HPP
 # define RBTREE_ITERATOR_HPP
 
+		enum color_t { BLACK, RED };
+
+template < class Data >
+	struct Node {
+		public:
+	
+		Data	*data;
+		Node	*parent;
+		Node	*left;
+		Node	*right;
+		int		color;//
+		bool	is_black;
+		bool	is_nil;
+
+		explicit Node( Data d = 0 ) : data(d), parent(NULL), left(NULL), right(NULL),
+									is_black(false), is_nil(false) {}
+
+		/*
+		Node( Data data ) {
+			this->data = data;
+			color = RED;
+			left = right = parent = NULL;
+		}*/
+
+		Node( const Node& ref ) { *this = ref; }
+
+		virtual ~Node() {}
+
+		Node& operator=( const Node& other ) {
+			if (this == &other)
+				return *this;
+			this->data = other.data;
+			this->parnet = other.parent;
+			this->left = other.left;
+			this->right = other.right;
+			this->is_black = other.is_black;
+			this->is_nil = other.is_nil;
+			return *this;
+		}
+	};
+
 template <typename T>
 class TreeIterator {
-	Node*	ptr_;
+
+	public:
+		typedef std::bidirectional_iterator_tag						iterator_category;
+		typedef typename ft::iterator_traits<T*>::value_type		value_type;
+		typedef typename ft::iterator_traits<T*>::reference			reference;
+		typedef typename ft::iterator_traits<T*>::pointer			pointer;
+		typedef typename ft::iterator_traits<T*>::difference_type	difference_type;
+		typedef Node<typename std::remove_const<value_type>::type >* node_ptr;
+		//typedef Node<typename ft::remove_const<value_type>::type >* node_ptr;
+
+	private:
+		node_ptr	ptr_;
 
 		node_ptr tree_min( node_ptr n ) const {
 			while(n->left != NULL && !n->left->is_nil)
@@ -18,13 +70,6 @@ class TreeIterator {
 		}
 
 	public:
-		typedef std::bidirectional_iterator_tag						iterator_category;
-		typedef typename ft::iterator_traits<T*>::value_type		value_type;
-		typedef typename ft::iterator_traits<T*>::reference			reference;
-		typedef typename ft::iterator_traits<T*>::pointer			pointer;
-		typedef typename ft::iterator_traits<T*>::difference_type	difference_type;
-		typedef Node<typename ft::remove_const<value_type>::type >* node_ptr;
-
 		TreeIterator() {}
 
 		//TreeIter(const TreeIter<typename ft::remove_const<value_type>::type > & other)//: _node(other.node()) {}
@@ -119,5 +164,6 @@ template <class A, class B>
 template <class A, class B>
 	bool operator!=( const TreeIterator<A> &lhs, const TreeIterator<B> &rhs ) {
 		return lhs.getNode() != rhs.getNode();
+	}
 
 #endif

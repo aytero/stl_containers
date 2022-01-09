@@ -1,61 +1,54 @@
 #ifndef RBTREE_HPP
 # define RBTREE_HPP
 
-#include <iostream>
+# include "rbtree_iterator.hpp"
 
-/*
-struct Node {
-	Data		data;
-	struct Node	*parent;
-	struct Node	*left;
-	struct Node	*right;
-	bool		is_black;
-	//enum color_t color;
+# include <iostream>
 
-	Node( Data data ) {
-		this->data = data;
-		is_black = true;
-		left = right = parent = NULL;
-	}
-	//op=
-};
-*/
+template < class Data, class Compare = std::less<Data>, class Allocator = std::allocator<Data> >
+class RBTree {
 
-// mb no namespace ?
-/*
-namespace ft
-{
-	template < class Data, class Compare = std::less<Data>, class Alloc = std::allocator<Data> >
-		class RBTree;
-}
-*/
-
-template < class Data, class Compare, class Alloc >
-class	RBTree {
 	public:
-		enum color_t { BLACK, RED };
 
-		struct Node {
-			Data		data;
-			struct Node	*parent;
-			struct Node	*left;
-			struct Node	*right;
-			int			color;
-			//bool		is_black;
-			//enum color_t color;
+		typedef Data	value_type;
+		typedef Compare	value_compare;
+		typedef Allocator	allocator_type;
 
-			Node( Data data ) {
-				this->data = data;
-				color = RED;
-				left = right = parent = NULL;
-			}
-		};
-		//typedef struct Node	NodePtr;
+		//typename Alloc::template rebind<Node>::other alloc_;
+		// node alloc
+		// node alloc type
+		typedef typename Allocator::template rebind< Node<Data> >::other	node_allocator;
+		typedef typename node_allocator::pointer	nodePtr; // node_pointer
+
+		typedef typename Allocator::reference		reference;
+		typedef typename Allocator::const_reference	const_reference;
+		typedef std::size_t							size_type;
+		typedef std::ptrdiff_t						difference_type;
+		//typedef ft::iterator_traits<iterator>::difference_type	diference_type;
+		typedef typename Allocator::pointer			pointer;
+		typedef typename Allocator::const_pointer	const_pointer;
+
+		typedef TreeIterator<Data>						iterator;
+		typedef TreeIterator<const Data>				const_iterator;
+		typedef ft::reverse_iterator<iterator>			reverse_iterator;
+		typedef ft::reverse_iterator<const_iterator>	const_reverse_iterator;
+
+	private:
+		allocator_type	val_alloc_;
+		node_allocator	node_alloc_;
+		value_compare	compare_;
+		nodePtr			root_;
+		nodePtr			nil_;
+		nodePtr			head_;
+		size_type		size_;
+
+		//struct Node*	tnull_;
 	
+
+	public:
 		RBTree() : root_(NULL) {}
 		
 		//RBTree( Data data ) : root_(NULL) {
-		//	
 		//}
 
 		//RBTree( const RBTree &ref ) {}
@@ -63,34 +56,11 @@ class	RBTree {
 
 		~RBTree() { free_node(root_); }
 	
-		/*
-		struct Node*	insert( struct Node* p, Data x ) {
-			// BST insert 
-			// balance/fix tree
-
-			Node*	tmp = root_;
-			
-			if (p == NULL) {
-				p = new Node;
-				//struct Node *n = alloc_.allocate(1);
-				//new (n) Node(Data);
-				p->data = x;
-				p->left = p->right = NULL;
-				p->parent = tmp;
-				p->color = 1;
-			} else if (x < p->data)
-				p->left = insert(p->left, x);
-			else if (x > p->data)
-				p->right = insert(p->right, x);
-			root_ = get_root(p);
-			return p;
-		}
-		*/
-
 		//ft::pair<iterator, bool> insert(const value_type &value){
 		//return ft::pair<iterator, bool>
 		void	insert( const Data& data ) {
-			Node*	node = new Node(data);
+			//nodePtr	node = new Node(data);
+			nodePtr	node = new Node<value_type>(data);
 
 			root_ = insertBST(root_, node);
 			balanceInsertRBTree(node);
@@ -116,7 +86,7 @@ class	RBTree {
 		*/
 
 		void	deleteValue( Data data ) {
-			Node *node = findVal(root_, data);
+			nodePtr	node = findVal(root_, data);
 
 			// not Data but iterator
 			// check if n has only  one !null child
@@ -167,7 +137,7 @@ class	RBTree {
 				printHelper(root_, 0);
 		}
 
-		const Node*	getRoot() const { return root_; }
+		const nodePtr getRoot() const { return root_; }
 
 		// constructor, allocator
 		//colorSwap() {}// or recolor
@@ -189,8 +159,9 @@ class	RBTree {
 		return n;
 	}
 */
-		Node*	find( Data data ) const {
-			Node*	node = root_;
+		nodePtr find( Data data ) const {
+			nodePtr	node = root_;
+
 			while (node) {
 				if (data < node->data)
 				//if (cmp_(data, node->data))
@@ -204,19 +175,20 @@ class	RBTree {
 			return node;
 		}
 
+
+
+
+
 	private:
-		struct Node*	root_;
-		//struct Node*	tnull_;
-		typename Alloc::template rebind<Node>::other alloc_;
-	
-		Node *get_root( struct Node *n ) {
+
+		nodePtr get_root( nodePtr n ) {
 			while (n && n->parent)
 				n = n->parent;
 			return n;
 		}
 	
 	
-		void printHelper(const struct Node *root, int lvl)
+		void printHelper(const nodePtr root, int lvl)
 		{
 			if (!root)
 				return ;
@@ -227,8 +199,8 @@ class	RBTree {
 			printHelper(root->left, lvl + 1);
 		}
 
-		void rotateLeft( Node* n ) {
-			Node *pivot = n->right;
+		void rotateLeft( nodePtr n ) {
+			nodePtr	pivot = n->right;
 
 			std::cout << "rl\n";
 
@@ -247,8 +219,8 @@ class	RBTree {
 			pivot->left = n;
 		}
 
-		void	rotateRight( Node* n ) {
-			Node*	pivot = n->left;
+		void	rotateRight( nodePtr n ) {
+			nodePtr	pivot = n->left;
 
 			std::cout << "rr\n";
 	
@@ -267,14 +239,14 @@ class	RBTree {
 			pivot->right = n;
 		}
 
-		Node*	grandparent( Node *n ) {
+		nodePtr grandparent( nodePtr n ) {
 			if (n != NULL && n->parent != NULL)
 				return n->parent->parent;
 			return NULL;
 		}
 
-		Node*	uncle( Node* n ) {
-			Node*	g = grandparent(n);
+		nodePtr uncle( nodePtr n ) {
+			nodePtr	g = grandparent(n);
 			if (g == NULL)
 				return NULL;
 			if (n->parent == g->left)
@@ -284,7 +256,7 @@ class	RBTree {
 
 
 		// recolor opts
-		void	insert_case1( Node* n ) {
+		void	insert_case1( nodePtr n ) {
 
 			std::cout << n->data <<"\n";
 			std::cout << "case1\n";
@@ -297,7 +269,7 @@ class	RBTree {
 				insert_case2(n);
 		}
 
-		void	insert_case2( Node* n ) {
+		void	insert_case2( nodePtr n ) {
 
 			std::cout << "case2\n";
 			//if (n->data == 11) 
@@ -308,9 +280,9 @@ class	RBTree {
 			insert_case3(n);
 		}
 
-		void	insert_case3( Node* n ) {
-			Node*	u = uncle(n);
-			Node*	g;
+		void	insert_case3( nodePtr n ) {
+			nodePtr u = uncle(n);
+			nodePtr	g;
 			std::cout << "case3\n";
 
 			if ((u != NULL) && (u->color == RED)) {
@@ -323,11 +295,11 @@ class	RBTree {
 				insert_case4(n);
 		}
 
-		void	insert_case4( Node* n ) {
+		void	insert_case4( nodePtr n ) {
 
 			std::cout << "case4\n";
 
-			Node *g = grandparent(n);
+			nodePtr	g = grandparent(n);
 			if ((n == n->parent->right) && (n->parent == g->left)) {
 				rotateLeft(n->parent);
 				n = n->left;
@@ -338,8 +310,8 @@ class	RBTree {
 			insert_case5(n);
 		}
 
-		void	insert_case5( Node* n ) {
-			Node*	g = grandparent(n);
+		void	insert_case5( nodePtr n ) {
+			nodePtr	g = grandparent(n);
 			std::cout << "case5\n";
 
 			n->parent->color = BLACK;
@@ -352,7 +324,7 @@ class	RBTree {
 
 
 
-		Node*	insertBST( Node *root, Node *n ) {
+		nodePtr insertBST( nodePtr root, nodePtr n ) {
 			if (root == NULL)
 				return n;
 			if (n->data < root->data) {
@@ -365,11 +337,11 @@ class	RBTree {
 			return root;
 		}
 		
-		void	balanceInsertRBTree( Node* n ) {
+		void	balanceInsertRBTree( nodePtr n ) {
 			insert_case1(n);
 		}
 
-		void free_node( struct Node *n ) {
+		void free_node( nodePtr n ) {
 			if (!n)
 				return ;
 			free_node(n->left);
@@ -380,13 +352,13 @@ class	RBTree {
 		}
 
 
-		Node*	sibling( Node* n ) {
+		nodePtr	sibling( nodePtr n ) {
 			if (n == n->parent->left)
 				return n->parent->right;
 			return n->parent->left;
 		}
 
-		Node	*findVal( Node* root, Data data ) {
+		nodePtr findVal( nodePtr root, Data data ) {
 			if (root == NULL)
 				return root;
 
@@ -398,14 +370,14 @@ class	RBTree {
 			if (root->left == NULL || root->right == NULL)
 				return root;
 
-			Node*	tmp = minValueNode(root->right);
+			nodePtr	tmp = minValueNode(root->right);
 			root->data = tmp->data;
 			return findVal(root->right, tmp->data);
 
 			//return root;//tmp
 		}
 
-		void	replaceNode( Node* n, Node* child ) {
+		void	replaceNode( nodePtr n, nodePtr child ) {
 
 			std::cout << "replace node\n";
 			if (child)
@@ -421,8 +393,8 @@ class	RBTree {
 		}
 
 		// works with prefound by value node
-		void	deleteNode( Node *n ) {
-			Node*	child = n->right ? n->right : n->left;
+		void	deleteNode( nodePtr n ) {
+			nodePtr	child = n->right ? n->right : n->left;
 
 
 			replaceNode(n, child);
@@ -443,14 +415,14 @@ class	RBTree {
 			free(n);
 		}
 
-		void	delete_case1( Node* n ) {
+		void	delete_case1( nodePtr n ) {
 			std::cout << "del case1\n";
 			if (n->parent != NULL)
 				delete_case2(n);
 		}
 
-		void	delete_case2( Node* n ) {
-			Node*	s = sibling(n);
+		void	delete_case2( nodePtr n ) {
+			nodePtr	s = sibling(n);
 
 			std::cout << "del case2\n";
 			if (s->color == RED) {
@@ -464,8 +436,8 @@ class	RBTree {
 			delete_case3(n);
 		}
 
-		void	delete_case3( Node* n ) {
-			Node*	s = sibling(n);
+		void	delete_case3( nodePtr n ) {
+			nodePtr	s = sibling(n);
 
 			std::cout << "del case3\n";
 			if (n->parent->color == BLACK && s->color == BLACK
@@ -476,8 +448,8 @@ class	RBTree {
 				delete_case4(n);
 		}
 
-		void	delete_case4( Node* n ) {
-			Node*	s = sibling(n);
+		void	delete_case4( nodePtr n ) {
+			nodePtr	s = sibling(n);
 
 			std::cout << "del case4\n";
 			if (n->parent->color == RED && s->color == BLACK
@@ -489,8 +461,8 @@ class	RBTree {
 		
 		}
 
-		void	delete_case5( Node* n ) {
-			Node*	s = sibling(n);
+		void	delete_case5( nodePtr n ) {
+			nodePtr	s = sibling(n);
 
 			std::cout << "del case5\n";
 			if (s->color == BLACK) {
@@ -507,8 +479,8 @@ class	RBTree {
 			delete_case6(n);
 		}
 
-		void	delete_case6( Node* n ) {
-			Node*	s = sibling(n);
+		void	delete_case6( nodePtr n ) {
+			nodePtr	s = sibling(n);
 
 			std::cout << "del case6\n";
 			s->color = n->parent->color;
@@ -524,7 +496,7 @@ class	RBTree {
 		}
 
 		/*
-		Node*	deleteBST( Node* root, Data data ) {
+		nodePtr	deleteBST( nodePtr root, Data data ) {
 			if (root == NULL)
 				return root;
 
@@ -536,7 +508,7 @@ class	RBTree {
 			if (root->left == NULL || root->right == NULL)
 				return root;
 
-			Node*	tmp = minValueNode(root->right);
+			nodePtr	tmp = minValueNode(root->right);
 			root->data = tmp->data;
 			return deleteBST(root->right, tmp->data);
 
@@ -544,16 +516,16 @@ class	RBTree {
 		}
 */
 
-		Node*	minValueNode( Node* n ) {
-			Node*	ptr = n;
+		nodePtr	minValueNode( nodePtr n ) {
+			nodePtr	ptr = n;
 			
 			while (ptr->left != NULL)
 				ptr = ptr->left;
 			return ptr;
 		}
 
-		Node*	maxValueNode( Node* n ) {
-			Node*	ptr = n;
+		nodePtr	maxValueNode( nodePtr n ) {
+			nodePtr	ptr = n;
 			
 			while (ptr->right != NULL)
 				ptr = ptr->right;
@@ -561,7 +533,7 @@ class	RBTree {
 		}
 
 		/*
-		void	balanceDeleteRBTree( Node* node ) {
+		void	balanceDeleteRBTree( nodePtr node ) {
 			if (node == NULL)
 				return ;
 			if (node == root_) {

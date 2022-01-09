@@ -7,6 +7,7 @@
 #include "type_traits.hpp"
 
 #include <list>//
+#include "map.hpp"
 #include "rbtree.hpp"
 
 template <class V>

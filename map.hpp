@@ -1,14 +1,15 @@
 #ifndef MAP_HPP
 # define MAP_HPP
 
-namespace ft
-{
+# include "rbtree.hpp"
+
+namespace ft {
 	//template < class Key, class T, class Compare = less<Key>,
 	//			 class Allocator = std::allocator<ft::pair<const Key,T> > >
 	//	class map;
 //}
 
-template < class Key, class T, class Compare = less<Key>,
+template < class Key, class T, class Compare = std::less<Key>,
 		 	class Allocator = std::allocator<pair<const Key, T> > >
 class map {
 
@@ -27,15 +28,32 @@ class map {
 		typedef typename Allocator::pointer			pointer;
 		typedef typename Allocator::const_pointer	const_pointer;
 
-		//typedef pair_compare value_compare;
-		typedef rbree<value_type, pair_compare, allocator_type>	tree_type;
+		/////////
+	private:
+		class pair_compare {
+			key_compare _compare;
+
+			public:
+				pair_compare(const key_compare & compare) : _compare(compare) {}
+
+				bool operator()(const value_type & x, const value_type & y) const{
+					return (_compare(x.first, y.first));
+				}
+		};
+		/////////////
+
+
+	public:
+		typedef pair_compare value_compare;
+		/////
+		typedef RBTree<value_type, pair_compare, allocator_type>	tree_type;
 		typedef typename tree_type::iterator					iterator;
 		typedef typename tree_type::const_iterator				const_iterator;
 		typedef typename tree_type::reverse_iterator			reverse_iterator;
 		typedef typename tree_type::const_reverse_iterator		const_reverse_iterator;
 
 	private:
-		ALloc		alloc_;
+		Allocator	alloc_;
 		Compare		cmp_;
 		tree_type	tree_;
 	
@@ -70,7 +88,8 @@ class map {
 				//}
 			}
 
-		map( const map<Key, T, Compare, Allocator> &ref ) : cmp_(other.cmp_), alloc_(other.alloc_), tree_(ref.tree_) {}
+		map( const map<Key, T, Compare, Allocator> &ref )
+					: cmp_(ref.cmp_), alloc_(ref.alloc_), tree_(ref.tree_) {}
 
 		~map() {}
 
@@ -231,7 +250,7 @@ template <class Key, class T, class Compare, class Allocator>
 template <class Key, class T, class Compare, class Allocator>
 	bool operator>( const map<Key,T,Compare,Allocator>& lhs,
 					const map<Key,T,Compare,Allocator>& rhs) {
-		return rhs_ < lhs_;
+		return rhs < lhs;
 	}
 
 template <class Key, class T, class Compare, class Allocator>
@@ -243,10 +262,10 @@ template <class Key, class T, class Compare, class Allocator>
 template <class Key, class T, class Compare, class Allocator>
 	bool operator>=( const map<Key,T,Compare,Allocator>& lhs,
 					const map<Key,T,Compare,Allocator>& rhs) {
-		return !(lhs_ < rhs_);
+		return !(lhs < rhs);
 	}
 
-template <class key, class T, class Compare, class Allocator>
+template <class Key, class T, class Compare, class Allocator>
 	void swap( map<Key,T,Compare,Allocator>& lhs,
 			map<Key,T,Compare,Allocator>& rhs ) {
 		lhs.swap(rhs);
