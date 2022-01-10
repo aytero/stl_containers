@@ -76,12 +76,12 @@ class map {
 			*/
 		explicit map( const key_compare& comp = key_compare(),
 					const allocator_type& alloc = allocator_type() )
-				: cmp_(comp), alloc_(alloc), tree_(tree_type(comp, alloc)) {}
+				: alloc_(alloc), cmp_(comp), tree_(tree_type(comp, alloc)) {}
 
 		template <class InputIt>
 			map ( InputIt first, InputIt last, const key_compare& comp = key_compare(),
 					const allocator_type& alloc = allocator_type() )
-					: cmp_(comp), alloc_(alloc), tree_(first, last, comp, alloc_) {
+					: alloc_(alloc), cmp_(comp), tree_(first, last, comp, alloc_) {
 				//while (first != last) {
 				//	insert(*first);
 				//	++first;

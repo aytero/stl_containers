@@ -229,5 +229,9 @@ int	main() {
 //	if (ft::is_integral<ig>::value)
 //		std::cout << "it's bool it's integral\n";
 
+	ft::map<int, std::string> mp;
+
+	mp.insert(ft::make_pair(1, "hello"));
+
 	return 0;
 }

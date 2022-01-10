@@ -46,7 +46,46 @@ class RBTree {
 	
 
 	public:
+
+		/*
+		//CONSTRUCTORS
+		RBTree(const Compare &comp, const allocator_type& a = allocator_type()):
+				 _val_alloc(a), _node_alloc(node_allocator()), _compare(comp), _root(0), _size(0){
+			init_nil_head();
+			_root = _header;
+		}
+
+		RBTree() : _root(0), _val_alloc(allocator_type()), _node_alloc(node_allocator()), _compare(value_compare()), _size(0){
+			init_nil_head();
+			_root = _header;
+		}
+
+		RBTree(const RBTree& src) :  _compare(src._compare), _root(NULL) {
+			*this = src;
+		}
+		template<class InputIt>
+		RBTree(typename ft::enable_if< !ft::is_integral<InputIt>::value, InputIt >::type first, InputIt last,
+		   const value_compare& comp, const allocator_type& alloc = allocator_type()):	_val_alloc(alloc),
+		   																				_node_alloc(node_allocator()),
+																						_compare(comp) {
+			init_nil_head();
+			_root = _header;
+			for (; first != last; ++first)
+				insert(*first);
+		}
+
+
+		   */
+
+		// Constructors
+
 		RBTree() : root_(NULL) {}
+
+		RBTree( const Compare& comp, const allocator_type &alloc = allocator_type()) 
+						: val_alloc_(alloc), node_alloc_(node_allocator()), compare_(comp),
+						root_(0), size_(0) {
+			//;
+		}
 		
 		//RBTree( Data data ) : root_(NULL) {
 		//}
@@ -195,7 +234,7 @@ class RBTree {
 			printHelper(root->right, lvl + 1);
 			for (int i = 0; i < lvl * 4; i++)
 				std::cout << " ";
-			std::cout << root->data << (root->color == RED ? "r" : "b") << std::endl;
+			std::cout << root->data << (root->is_black == false ? "r" : "b") << std::endl;
 			printHelper(root->left, lvl + 1);
 		}
 
@@ -264,7 +303,8 @@ class RBTree {
 			//if (n->data == 8 && n->left) 
 			//o	std::cout << n->left->color << "  color of 4\n";
 			if (n->parent == NULL)
-				n->color = BLACK;
+				n->is_black = true;
+				//n->color = true;
 			else
 				insert_case2(n);
 		}
@@ -275,7 +315,7 @@ class RBTree {
 			//if (n->data == 11) 
 			//	std::cout << uncle(n)->color << "  color of 4\n";
 
-			if (n->parent->color == BLACK)
+			if (n->parent->is_black == true)
 				return ;
 			insert_case3(n);
 		}
@@ -285,11 +325,11 @@ class RBTree {
 			nodePtr	g;
 			std::cout << "case3\n";
 
-			if ((u != NULL) && (u->color == RED)) {
-				n->parent->color = BLACK;
-				u->color = BLACK;
+			if ((u != NULL) && (u->is_black == false)) {
+				n->parent->is_black = true;
+				u->is_black = true;
 				g = grandparent(n);
-				g->color = RED;
+				g->is_black = false;
 				insert_case1(g);
 			} else
 				insert_case4(n);
@@ -314,8 +354,8 @@ class RBTree {
 			nodePtr	g = grandparent(n);
 			std::cout << "case5\n";
 
-			n->parent->color = BLACK;
-			g->color = RED;
+			n->parent->is_black = true;
+			g->is_black = false;
 			if ((n == n->parent->left) && (n->parent == g->left))
 				rotateRight(g);
 			else
@@ -400,11 +440,11 @@ class RBTree {
 			replaceNode(n, child);
 			std::cout << "del node\n";
 			// && child same cause of null ptrs not nodes
-			//if (n->color == BLACK) {
-			if (n->color == BLACK && child) {
+			//if (n->color == true) {
+			if (n->is_black == true && child) {
 					std::cout << "EEEE\n";
-				if (child->color == RED) {
-					child->color = BLACK;
+				if (child->is_black == false) {
+					child->is_black = true;
 				} else {
 					delete_case1(child);
 				}
@@ -425,9 +465,9 @@ class RBTree {
 			nodePtr	s = sibling(n);
 
 			std::cout << "del case2\n";
-			if (s->color == RED) {
-				n->parent->color = RED;
-				s->color = BLACK;
+			if (s->is_black == false) {
+				n->parent->is_black = false;
+				s->is_black = true;
 				if (n == n->parent->left)
 					rotateLeft(n->parent);
 				else
@@ -440,9 +480,9 @@ class RBTree {
 			nodePtr	s = sibling(n);
 
 			std::cout << "del case3\n";
-			if (n->parent->color == BLACK && s->color == BLACK
-					&& s->left->color == BLACK && s->right->color == BLACK) {
-				s->color = RED;
+			if (n->parent->is_black == true && s->is_black == true
+					&& s->left->is_black == true && s->right->is_black == true) {
+				s->is_black = false;
 				delete_case1(n->parent);
 			} else
 				delete_case4(n);
@@ -452,10 +492,10 @@ class RBTree {
 			nodePtr	s = sibling(n);
 
 			std::cout << "del case4\n";
-			if (n->parent->color == RED && s->color == BLACK
-					&& s->left->color == BLACK && s->right->color == BLACK) {
-				s->color = RED;
-				n->parent->color = BLACK;
+			if (n->parent->is_black == false && s->is_black == true
+					&& s->left->is_black == true && s->right->is_black == true) {
+				s->is_black = false;
+				n->parent->is_black = true;
 			} else
 				delete_case5(n);
 		
@@ -465,14 +505,14 @@ class RBTree {
 			nodePtr	s = sibling(n);
 
 			std::cout << "del case5\n";
-			if (s->color == BLACK) {
-				if (n->parent->left && s->right->color == BLACK && s->left->color == RED) {
-					s->color = RED;
-					s->left->color = BLACK;
+			if (s->is_black == true) {
+				if (n->parent->left && s->right->is_black == true && s->left->is_black == false) {
+					s->is_black = false;
+					s->left->is_black = true;
 					rotateRight(s);
-				} else if (n == n->parent->right && s->left->color == BLACK && s->right->color == RED) {
-					s->color = RED;
-						s->right->color = BLACK;
+				} else if (n == n->parent->right && s->left->is_black == true && s->right->is_black == false) {
+					s->is_black = false;
+						s->right->is_black = true;
 					rotateLeft(s);
 				}
 			}
@@ -483,14 +523,14 @@ class RBTree {
 			nodePtr	s = sibling(n);
 
 			std::cout << "del case6\n";
-			s->color = n->parent->color;
-			n->parent->color = BLACK;
+			s->is_black = n->parent->is_black;
+			n->parent->is_black = true;
 
 			if (n == n->parent->left) {
-				s->right->color = BLACK;
+				s->right->is_black = true;
 				rotateLeft(n->parent);
 			} else {
-				s->left->color = BLACK;
+				s->left->is_black = true;
 				rotateRight(n->parent);
 			}
 		}
@@ -541,7 +581,7 @@ class RBTree {
 				return ;
 			}
 
-			if (node->color == RED || node->left->color == RED || node->right == RED) {
+			if (node->is_black == false || node->left->is_black == false || node->right == false) {
 				;
 				//Node*	child = node->left;
 			} else {
@@ -554,7 +594,7 @@ class RBTree {
 				node->parent->right = NULL;
 			delete(node);
 			//delete node;
-			root_->color = BLACK;
+			root_->is_black = true;
 		}
 		*/
 };

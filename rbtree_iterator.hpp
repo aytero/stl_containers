@@ -1,8 +1,6 @@
 #ifndef RBTREE_ITERATOR_HPP
 # define RBTREE_ITERATOR_HPP
 
-		enum color_t { BLACK, RED };
-
 template < class Data >
 	struct Node {
 		public:
