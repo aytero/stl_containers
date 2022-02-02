@@ -1,6 +1,8 @@
 #ifndef SET_HPP
 # define SET_HPP
 
+# include "utility.hpp"
+# include "type_traits.hpp"
 # include "iterator_traits.hpp"
 # include "reverse_iterator.hpp"
 # include "rbtree.hpp"
@@ -11,23 +13,28 @@ namespace ft {
 	class set {
 
 	public:
+
+
+		/////
 		typedef Key										key_type;
 		typedef Key										value_type;
 		typedef Compare									key_compare;
 		typedef Compare									value_compare;
 		typedef Allocator								allocator_type;
-		typedef typename Allocator::reference			reference;
-		typedef typename Allocator::const_reference		const_reference;
+		typedef value_type&			reference;
+		typedef const value_type&		const_reference;
 		typedef RBTree<Key,Compare,Allocator>			tree_type;
-		typedef typename tree_type::const_iterator		iterator;
+		typedef typename tree_type::iterator		iterator;// const_iter
 		typedef typename tree_type::const_iterator		const_iterator;
 		typedef std::size_t								size_type;
 		typedef std::ptrdiff_t							difference_type;
 		//typedef ft::iterator_traits<iterator>::difference_type	diference_type;
 		typedef typename Allocator::pointer				pointer;
 		typedef typename Allocator::const_pointer		const_pointer;
-		typedef ft::reverse_iterator<iterator>			reverse_iterator;
-		typedef ft::reverse_iterator<const_iterator>	const_reverse_iterator;
+		typedef typename tree_type::reverse_iterator			reverse_iterator;
+		typedef typename tree_type::const_reverse_iterator	const_reverse_iterator;
+		//typedef ft::reverse_iterator<iterator>			reverse_iterator;
+		//typedef ft::reverse_iterator<const_iterator>	const_reverse_iterator;
 
 	private:
 		tree_type	tree_;

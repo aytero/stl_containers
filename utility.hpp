@@ -128,7 +128,7 @@ template <class T1, class T2>
 		//pair() : first(T1()), second(T2()) {}
 	
 		template < class U, class V >
-			pair( const pair<U,V>& b ) : first(b.first), second(b.second) {}
+			pair( const pair<U,V> &b ) : first(b.first), second(b.second) {}
 	
 		pair( const pair& b ) : first(b.first), second(b.second) {}
 

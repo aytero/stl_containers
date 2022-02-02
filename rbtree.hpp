@@ -104,10 +104,10 @@ class RBTree {
 		~RBTree() {
 			free_node(root_);
 
-			//val_alloc_.destroy(head_->value);
-			//val_alloc_.deallocate(head_->value, 1);
-			//node_alloc_.deallocate(nil_, 1);
-			//node_alloc_.deallocate(head_, 1);
+			val_alloc_.destroy(head_->data);
+			val_alloc_.deallocate(head_->data, 1);
+			node_alloc_.deallocate(nil_, 1);
+			node_alloc_.deallocate(head_, 1);
 		}
 
 		iterator begin() {
@@ -155,10 +155,10 @@ class RBTree {
 		//////////
 		nodePtr _create_node( const value_type& val ) {
 			nodePtr new_node = node_alloc_.allocate(1);
-			new (new_node) Node<value_type>(create_value(val));
-			//node_alloc_.construct(node, Node<value_type>(create_value(val)));
-			new_node->left = null_node_;
-			new_node->right = null_node_;
+			//new (new_node) Node<value_type>(create_value(val));
+			node_alloc_.construct(new_node, Node<value_type>(create_value(val)));
+			new_node->left = nil_;
+			new_node->right = nil_;
 			return new_node;
 		}
 
@@ -217,7 +217,7 @@ class RBTree {
 		iterator insert( iterator position, const value_type& val ) {
 			nodePtr new_node = findVal(root_, val);
 			if (new_node)
-				return iterator(new_node), false;
+				return iterator(new_node);
 
 			new_node = _create_node(val);
 			//insert with hint;
@@ -257,7 +257,7 @@ class RBTree {
 
 		void erase( iterator position ) {
 			nodePtr n = position.getNode();
-			//nodePtr to_free = n;
+			nodePtr to_free = n;
 			nodePtr x = nil_;
 			bool n_orig_is_black = n->is_black;
 
@@ -288,7 +288,7 @@ class RBTree {
 				n->left->parent = n;
 				n->is_black = z->is_black;
 			}
-			//free_node(to_free);
+			free_node(to_free);
 			if (n_orig_is_black == true)// BLACK
 				rb_delete_fixup(x);
 		/*
@@ -441,15 +441,15 @@ class RBTree {
 				return ;
 			free_node(n->left);
 			free_node(n->right);
-			n->~Node();
+			//n->~Node();
 			//alloc_.deallocate(n, 1);
-			delete n;
+			//delete n;
 			// val destroy
 			// val dealloc
 			//node dealloc
-				//val_alloc_.destroy(node->value);
-				//_val_alloc.deallocate(node->value, 1);
-				//_node_alloc.deallocate(node, 1);
+			val_alloc_.destroy(n->data);
+			val_alloc_.deallocate(n->data, 1);
+			node_alloc_.deallocate(n, 1);
 
 		}
 
@@ -506,7 +506,7 @@ class RBTree {
 		}
 
 		bool is_nil( nodePtr node ) const {
-			return node == null_node_ || node == head_;
+			return node == nil_ || node == head_;
 		}
 
 		void rb_insert( nodePtr z ) {

@@ -13,7 +13,6 @@ template < class Data >
 		Node	*parent;
 		Node	*left;
 		Node	*right;
-		int		color;//
 		bool	is_black;
 		bool	is_nil;
 
@@ -77,8 +76,8 @@ class TreeIterator {
 		~TreeIterator() {}
 
 		TreeIterator& operator=( const TreeIterator<typename ft::remove_const<value_type>::type> &other ) {
-			if (this != &other)
-				ptr_ = other.ptr_;
+			//if (this != &other)
+				ptr_ = other.getNode();
 			return *this;
 		}
 
@@ -100,7 +99,7 @@ class TreeIterator {
 		}
 
 		TreeIterator operator++( int ) {
-			TreeIterator<value_type> tmp(*this);
+			TreeIterator<value_type> tmp = *this;
 
 			if (!ptr_->right->is_nil) {
 				ptr_ = tree_min(ptr_->right);
@@ -131,7 +130,7 @@ class TreeIterator {
 		}
 
 		TreeIterator operator--( int ) {
-			TreeIterator<value_type> tmp(*this);
+			TreeIterator<value_type> tmp = *this;
 
 			if (ptr_->left && !ptr_->left->is_nil) {
 				ptr_ = tree_max(ptr_->left);

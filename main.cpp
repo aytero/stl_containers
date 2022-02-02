@@ -266,6 +266,7 @@ int	main() {
 	mp.equal_range(1);
 	//mp.value_compare(1, 2);
 	mp.erase(1);
+	mp.insert(mp.begin(), ft::make_pair(2, "Hi"));
 
 	return 0;
 }

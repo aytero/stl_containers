@@ -120,6 +120,15 @@ namespace ft {
 			return (*((insert(ft::make_pair(key, mapped_type()))).first)).second;
 		}
 
+		T& at( const Key &k ) {
+			iterator res = tree_.find(ft::make_pair(k, mapped_type()));
+			if (res == tree_.end())
+				throw std::out_of_range("map::at: key not found");
+			return (res->second);
+		}
+
+
+
 		// single elem
 		pair<iterator, bool> insert( const value_type& val ) {
 			return tree_.insert(val);
