@@ -26,12 +26,12 @@ template < class Data >
 		Node& operator=( const Node& other ) {
 			if (this == &other)
 				return *this;
-			this->data = other.data;
-			this->parent = other.parent;
-			this->left = other.left;
-			this->right = other.right;
-			this->is_black = other.is_black;
-			this->is_nil = other.is_nil;
+			data = other.data;
+			parent = other.parent;
+			left = other.left;
+			right = other.right;
+			is_black = other.is_black;
+			is_nil = other.is_nil;
 			return *this;
 		}
 	};
@@ -76,8 +76,7 @@ class TreeIterator {
 		~TreeIterator() {}
 
 		TreeIterator& operator=( const TreeIterator<typename ft::remove_const<value_type>::type> &other ) {
-			//if (this != &other)
-				ptr_ = other.getNode();
+			ptr_ = other.getNode();
 			return *this;
 		}
 

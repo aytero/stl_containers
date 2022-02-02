@@ -77,6 +77,42 @@ class RBTree {
 			*this = ref;
 		}
 
+		//////
+	nodePtr copy_node( nodePtr other ){
+		nodePtr new_node = node_alloc_.allocate(1);
+		node_alloc_.construct(new_node,Node<Data>());
+		new_node->is_black = other->is_black;
+		new_node->is_nil = other->is_nil;
+		if (other->data) {
+			new_node->data = val_alloc_.allocate(1);
+			val_alloc_.construct(new_node->data,*other->data);
+		}
+		return new_node;
+	}
+
+	void copy_child_node( nodePtr node, nodePtr other ){
+		if (other->left->is_nil)
+			node->left = nil_;
+		else {
+			node->left = copy_node(other->left);
+			node->left->parent = node;
+			copy_child_node(node->left, other->left);
+		}
+
+		if (other->right->is_nil)
+			node->right = nil_;
+		else if (other->right->right == 0) {
+			node->right = head_;
+			head_->parent = node;
+		} else {
+			node->right = copy_node(other->right);
+			node->right->parent = node;
+			copy_child_node(node->right, other->right);
+		}
+	}
+	///////////////
+
+
 		RBTree& operator=( const RBTree &other ) {
 			if (this == &other)
 				return *this;
@@ -93,9 +129,9 @@ class RBTree {
 			if (other.size_ == 0)
 				root_ = head_;
 			else {
-				std::cout << "ELSE\n";
-			//	root_ = copy_node(other.root_);
-			//	copy_child(root_, other.root_);
+				//std::cout << "ELSE\n";
+				root_ = copy_node(other.root_);
+				copy_child_node(root_, other.root_);
 			}
 			size_ = other.size_;
 			return *this;
@@ -168,6 +204,7 @@ class RBTree {
 			head_->parent = new_tree_max;
 		}
 
+		/// TODO
 		nodePtr insert_to_node( nodePtr root, nodePtr new_node ) {
 			if (compare_(*new_node->data, *root->data)) {
 				if (!is_nil(root->left))
@@ -200,16 +237,11 @@ class RBTree {
 				return ft::pair<iterator,bool>(iterator(new_node), false);
 
 			new_node = _create_node(val);
-
-
-			//std::cout << root_->data->first << " TEST\n";
-			// insert 
 			insert_into_tree(new_node, root_);
 			//rb_insert(new_node);
 			rb_insert_fixup(new_node);
 			++size_;
 			_set_tree_max();
-			//std::cout << "TESTIK\n";
 			return ft::pair<iterator,bool>(iterator(new_node), true);
 		}
 	
@@ -221,7 +253,19 @@ class RBTree {
 
 			new_node = _create_node(val);
 			//insert with hint;
-			(void)position;
+			if (position == begin()) {
+				if (position != end() && compare_(val, *position))
+					insert_into_tree(new_node, tree_min(root_));
+				else
+					insert_into_tree(new_node, root_);
+			} else if (position == end()) {
+				if (position != begin()&& compare_(*(--position), val))
+					insert_into_tree(new_node, head_->parent);
+				else
+					insert_into_tree(new_node, root_);
+			} else
+				insert_into_tree(new_node, root_);
+
 			rb_insert_fixup(new_node);
 			++size_;
 			_set_tree_max();
@@ -261,10 +305,10 @@ class RBTree {
 			nodePtr x = nil_;
 			bool n_orig_is_black = n->is_black;
 
-			if (n->left == nil_) {
+			if (is_nil(n->left)) {
 				x = n->right;
 				rb_transplant(n, n->right);
-			} else if (n->right == nil_) {
+			} else if (is_nil(n->right)) {
 				x = n->left;
 				rb_transplant(n, n->left);
 			} else {
@@ -288,13 +332,17 @@ class RBTree {
 				n->left->parent = n;
 				n->is_black = z->is_black;
 			}
-			free_node(to_free);
+			//erase_node(to_free);
+			val_alloc_.destroy(to_free->data);
+			val_alloc_.deallocate(to_free->data, 1);
+			node_alloc_.deallocate(to_free, 1);
+
 			if (n_orig_is_black == true)// BLACK
 				rb_delete_fixup(x);
-		/*
+
 			--size_;
 			nil_->parent = 0;
-			if (_size == 0)
+			if (size_ == 0)
 				root_ = head_;
 			else {
 				if (size_ != 1)
@@ -304,11 +352,10 @@ class RBTree {
 				x->right = head_;
 				head_->parent = x;
 			}
-		 */
 		}
 
 		size_type erase( const value_type& value ) {
-			nodePtr	node = findVal(root_, value);//search
+			nodePtr	node = findVal(root_, value);//search for node
 
 			if (node)
 				erase(iterator(node));
@@ -524,7 +571,7 @@ class RBTree {
 				}
 			}
 			z->parent = y;
-			if (y == nil_) {
+			if (is_nil(y)) {
 				root_ = z;
 			} else if (compare_(*z->data, *y->data)) {
 			//} else if (z.key < y.key) {
@@ -582,7 +629,8 @@ class RBTree {
 
 		void rb_transplant( nodePtr u, nodePtr v ) {
 			// u == root_
-			if (u->parent == nil_)
+			if (u == root_)
+			//if (u->parent == nil_)
 				root_ = v;
 			else if (u == u->parent->left)
 				u->parent->left = v;

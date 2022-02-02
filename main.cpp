@@ -23,8 +23,70 @@ void	print_vector( V v ) {
 	std::cout << "\n";
 }
 
+class B {
+public:
+	char *l;
+	int i;
+	B():l(nullptr), i(1) {};
+	B(const int &ex) {
+		this->i = ex;
+		this->l = new char('a');
+	};
+	virtual ~B() {
+		delete this->l;
+		this->l = nullptr;
+	};
+};
+
+class A : public B {
+public:
+	A():B(){};
+	A(const B* ex){
+		this->l = new char(*(ex->l));
+		this->i = ex->i;
+		if (ex->i == -1) throw "n";
+	}
+	~A() {
+		delete this->l;
+		this->l = nullptr;
+	};
+};
+
+template <typename T>
+std::vector<int> insert_test_1(std::vector<T> vector) {
+    std::vector<int> v;
+    vector.assign(26000000, 1);
+    v.push_back(*(vector.insert(vector.end() - 8000000, 44)));
+    v.push_back(vector.size());
+    v.push_back(vector.capacity());
+    std::unique_ptr<B> k2(new B(3));
+    std::unique_ptr<B> k3(new B(4));
+    std::unique_ptr<B> k4(new B(-1));
+    std::vector<A> vv;
+    std::vector<B*> v1;
+
+	std::cout << &(*k4) << "\n";
+
+    v1.push_back(&(*k2));
+    v1.push_back(&(*k3));
+    v1.push_back(&(*k4));
+
+	try {
+    	vv.insert(vv.begin(), v1.begin(), v1.end());
+	}
+	catch ( char const * e ) {
+		std::cout << e << "\n";
+		std::cout << "EXC\n";
+	}
+	return v;
+}
+
 int	main() {
 
+
+	std::vector<int> v;
+
+	insert_test_1(v);
 	/*
 	ft::stack<int>	em;
 	ft::stack<int>	st;
@@ -86,7 +148,8 @@ int	main() {
 	std::cout << "st it arithmetics " << *(1 + stit1)  << "\n";
 	std::cout << "st it arithmetics " << *(stit1 + 1)  << "\n";
 	std::cout << "st it arithmetics, distance " << stit1 - stit  << "\n";
-
+*/
+	/*
 	ft::vector<int>		toIter(3, 15);
 	//ft::vector<int>		toIter;
 	ft::vector<int>::const_iterator	cit;
@@ -110,7 +173,6 @@ int	main() {
 	std::cout << "it arithmetics " << *(cit + 1) << "\n";
 	std::cout << "it arithmetics " << *(1 + cit) << "\n";
 	std::cout << "it arithmetics, distance " << cit - (cit - 2)  << "\n";
-
 	unsigned int size = toIter.size();
 	for (unsigned int i = 0; i < size; i++)
 		std::cout << toIter[i] << " ";
@@ -132,8 +194,7 @@ int	main() {
 	std::cout << "\n";
 
 	ft::vector<int>::iterator	lil = toIter.begin();
-
-	*/
+*/
 	//std::cout << <<;
 	/*
 	std::vector<int>	svc(3, 5);
@@ -146,7 +207,7 @@ int	main() {
 
 	std::cout << *it << "\n";
 	*/
-
+/*
 	std::cout << "\n";
 
 	std::list<int>		lst;
@@ -184,7 +245,7 @@ int	main() {
 
 	std::cout << "\n";
 
-
+*/
 	/*
 	ft::RBTree<int>	tree;
 
@@ -231,10 +292,10 @@ int	main() {
 //		std::cout << "it's bool it's integral\n";
 
 
+
+
 	ft::map<int, std::string> mp;
-
 	mp.insert(ft::make_pair(1, "hello"));
-
 	std::cout << mp.size() << "\n";
 	//ft::map<int,std::string>::iterator it = mp.begin();
 	std::cout << mp.begin()->first << ", " << mp.begin()->second << "\n";
@@ -248,11 +309,12 @@ int	main() {
 
 	setik.size();
 
+	setik.find(1);
+
 	//std::vector<int> v;
 	ft::map<int,int> mpt;
 
     for (int i = 0, j = 10; i < 30; ++i, ++j) {
-		//std::cout << "main TESTIK\n";
         mpt.insert(ft::make_pair(i, j));
     }
 	//ft::map<int, int> mp2(mp.begin(), mp.end());
@@ -265,8 +327,10 @@ int	main() {
 	std::cout << (mp < mp) << "\n";
 	mp.equal_range(1);
 	//mp.value_compare(1, 2);
-	mp.erase(1);
 	mp.insert(mp.begin(), ft::make_pair(2, "Hi"));
+
+	mp.erase(mp.begin(), mp.end());
+	mp.erase(1);
 
 	return 0;
 }

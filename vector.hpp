@@ -9,6 +9,19 @@
 #include "iterator_traits.hpp"
 #include "utility.hpp"
 
+
+// 12 operators in iters for ex const_iter - iter; iter + const_iter
+// nil node left and right to min max
+// std::distance not with all iterator types: make overloads
+// allocator and memory; vector throws exceptions, catches, deletes not finished adding and throws again
+// lower and  upper bound map and set into tree problem 
+//
+// tree copy and assign 
+//
+// vector operator -> with objects with overloaded & (addressof)
+//
+// map iterator -- when end() ? can use nil_->left/right or wierdly keep root in a node
+
 namespace ft
 {
 	template < class T, class Alloc = std::allocator<T> >
@@ -180,38 +193,40 @@ class ft::vector {
 		};
 	
 		
-
+		/////// TODO
+	 //vector (InputIterator first, InputIterator last,
+	//	 const allocator_type& alloc = allocator_type(), typename enable_if<!is_integral<InputIterator>::value>::type* = 0) : _allocator(alloc){
+//	size = last - first;
+//	capacity = _size;
+//	first = _allocator.allocate(_capacity);
+//	for (difference_type i = 0; i < static_cast<difference_type>(_size); i++)
+//		allocator.construct(_first + i, *(first + i));
+		///
 
 		typedef typename ft::reverse_iterator<iterator>			reverse_iterator;
 		typedef typename ft::reverse_iterator<const_iterator>	const_reverse_iterator;
 
-		// default
-		explicit vector( const allocator_type& alloc = allocator_type() )
-			: alloc_(alloc), capacity_(0), size_(0), arr_(NULL) {}
+		// constructors
+		explicit vector( const Alloc& alloc = Alloc() )
+						: alloc_(alloc), capacity_(0), size_(0), arr_(0) {}
 
-		// fill
-		explicit vector( size_type n, const value_type& val = value_type(),
-						const allocator_type& alloc = allocator_type() ) 
-				: alloc_(alloc), capacity_(n), size_(n), arr_(alloc_.allocate(n)) {
-
+		explicit vector( size_type n, const value_type& val = value_type(), const Alloc& alloc = Alloc() ) 
+						: alloc_(alloc), capacity_(n), size_(n), arr_(alloc_.allocate(n)) {
 			//assign(n, val);
-			insert(begin(), n, val);
-			//std::cout << "fill\n";
+			//insert(begin(), n, val);
+			for (size_type i = 0; i < n; ++i)
+				alloc_.construct(arr_ + i, val);
 		}
 
-		// range
-		//typename std::enable_if<!std::is_integral<InputIt>::val, InputIt>::type last)
-		template < class InputIterator >
-		vector( InputIterator first, InputIterator last,
-		//vector( typename std::enable_if<!std::is_integral<InputIterator>::val, InputIterator>::type first,
-		//		InputIterator last,
+		template < class InputIt >
+		vector( typename ft::enable_if<!ft::is_integral<InputIt>::value, InputIt>::type first,
+				InputIt last, const Alloc& alloc = Alloc() ) 
+				: alloc_(alloc), capacity_(0), size_(0), arr_(0) {
 
-				const allocator_type& alloc = allocator_type() ) 
-				: alloc_(alloc), capacity_(0), size_(0), arr_(NULL) {
-
+			if (first > last)
+				throw std::length_error("vector");
 			//assign(first, last);
 			insert(begin(), first, last);
-			//std::cout << "range\n";
 		}
 
 
@@ -271,14 +286,13 @@ class ft::vector {
 			//std::cout << size_ << " size | " << capacity_ 
 			//	<< " cap | " << n << " n\n"; 
 
-			pointer		new_arr = alloc_.allocate(n);
-
-			for (size_type i = 0; i < size_; i++)
+			pointer new_arr = alloc_.allocate(n);
+			for (size_type i = 0; i < size_; ++i)
 				new_arr[i] = arr_[i];
 			if (arr_)
 				alloc_.deallocate(arr_, capacity_);
-			capacity_ = n;
 			arr_ = new_arr;
+			capacity_ = n;
 		}
 
 		void	resize( size_type n, value_type val = value_type() ) {
@@ -290,6 +304,24 @@ class ft::vector {
 			size_ = n;
 		}
 
+		//
+		/*
+			if(n < _size){
+				for(size_type i = n; i < _size; i++)
+					_allocator.destroy(_first + i);
+				_size = n;
+			}
+			else if (n > _size){
+				if (_capacity < n)
+					this->reserve(_capacity * 2 > n ? _capacity * 2 : n);
+				for (size_type i = _size; i < n; i++){
+					_allocator.construct(_first + i, val);
+					_size++;
+				}
+			}
+			*/
+		//////////
+	
 
 		reference		operator[] ( size_type n ) { return (arr_[n]); }
 		const_reference	operator[] ( size_type n ) const { return arr_[n]; }
@@ -311,23 +343,19 @@ class ft::vector {
 
 
 		template < class InputIt >
-		//void	assign( InputIt first, InputIt last )
-		void assign(InputIt first,
-				typename std::enable_if<!std::is_integral<InputIt>::value, InputIt>::type last)
-				//typename enable_if<!is_integral<InputIt>::val, InputIt>::type last)
-		{		
-			//std::cout << "assign\n";
-			clear();
-			size_type	new_size = std::distance(first, last);
-			reserve(new_size);
-			size_ = new_size;
-
-			size_type	i = 0;
-			while (first != last) {
-				arr_[i++] = *first;
-				++first;
+			void assign(InputIt first, typename ft::enable_if<!ft::is_integral<InputIt>::value, InputIt>::type last)
+			{		
+				clear();
+				size_type new_size = std::distance(first, last);
+				reserve(new_size);
+				size_ = new_size;
+	
+				size_type	i = 0;
+				while (first != last) {
+					arr_[i++] = *first;
+					++first;
+				}
 			}
-		}
 
 		void	assign( size_type n, const value_type& val ) {
 			clear();
@@ -345,32 +373,44 @@ class ft::vector {
 			size_++;
 			//arr_[size_++] = val;
 		}
-		void	pop_back() { size_--; }
 
-		// single elem
-		iterator	insert( iterator position, const value_type& val ) {
-			difference_type	idx = position - begin();
-			//size_type	idx = position - begin();
+		void pop_back() {
+			--size_;
+		}
+
+		///////
+
+
+		///////
+		iterator insert( iterator position, const value_type& val ) {
+
+			if (position < begin() || position >= end())
+				throw std::logic_error("vector");
+
+			size_type idx = std::distance(begin(), position);
+			//difference_type	idx = position - begin();
 			
 			reserve(size_ + 1);
 			for (size_type i = size_; i > idx; --i)
 				arr_[i] = arr_[i - 1];
-			arr_[idx] = val;
+
 			++size_;
-			return begin() + idx;
-			//return arr_ + idx;
-			//size_type	idx = position - begin();
+			arr_[idx] = val;
+
+			//return begin() + idx;
+			return iterator(arr_ + idx);
 			//insert(position, 1, val);
-			//return iterator(arr_ + idx); // or position, but such iterator would be invalid
 		}
 
-		// fill
-		void		insert( iterator position, size_type n, const value_type& val ) {
+		void insert( iterator position, size_type n, const value_type& val ) {
+			if (!n)
+				return ;
+			if (max_size() - size_ < n)
+				throw std::length_error("vector");
+			
 			size_type	idx = position - begin();
 			//size_type	idx = std::distance(position, begin());
 			
-			//if (!n)
-			//	return ;
 			reserve(size_ + n);
 			size_ += n;
 			// size_ - 1 or size_ prob first bc of idx from 0
@@ -380,11 +420,12 @@ class ft::vector {
 				arr_[i] = val;
 		}
 
-		// range
 		template < class InputIterator >
-		void		insert( iterator position, InputIterator first,
-				//InputIterator last ) {
-				typename std::enable_if<!std::is_integral<InputIterator>::value, InputIterator>::type last) {
+		void insert( iterator position, InputIterator first,
+				typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type last) {
+			if (position < begin() || position > end() || first > last)
+				throw std::logic_error("vector");
+
 			size_type	idx = std::distance(begin(), position);
 			size_type	count = std::distance(first, last);
 			//if (!count)
@@ -398,6 +439,7 @@ class ft::vector {
 				arr_[idx + i] = *first;
 				first++;
 			}
+
 			//std::cout << "insert val\n";
 			/*
 			size_type	i = size_ - 1;

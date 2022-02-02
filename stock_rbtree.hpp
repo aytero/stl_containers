@@ -1,36 +1,5 @@
-		
-		node_pointer copy_node(node_pointer other){
-			node_pointer new_node = _node_alloc.allocate(1);
-			_node_alloc.construct(new_node, Node<Value>());
-			new_node->is_black = other->is_black;
-			new_node->is_nil = other->is_nil;
-			if (other->value){
-				new_node->value = _val_alloc.allocate(1);
-				_val_alloc.construct(new_node->value, *other->value);
-			}
-			return (new_node);
-		}
-	
-		void	copy_child(node_pointer my_node, node_pointer other){
-			if (other->left->is_nil)
-				my_node->left = _nil;
-			else {
-				my_node->left = copy_node(other->left);
-				my_node->left->parent = my_node;
-				copy_child(my_node->left, other->left);
-			}
-			if (other->right->is_nil)
-				my_node->right = _nil;
-			else if (other->right->right == NULL){
-				my_node->right = _header;
-				_header->parent = my_node;
-			}
-			else{
-				my_node->right = copy_node(other->right);
-				my_node->right->parent = my_node;
-				copy_child(my_node->right, other->right);
-			}
-		}
+
+
 
 		nodePtr insertBST( nodePtr root, nodePtr n ) {
 			if (root == NULL)
@@ -392,28 +361,3 @@
 		insert_case1(n);
 		_root = get_root(n);
 		return make_pair(n, true);
-
-
-
-	
-
-	
-		void swap(RBTree &other){
-			std::swap(this->_root, other._root);
-			std::swap(this->_nil, other._nil);
-			std::swap(this->_header, other._header);
-			std::swap(this->_size, other._size);
-			std::swap(this->_node_alloc, other._node_alloc);
-			std::swap(this->_val_alloc, other._val_alloc);
-			std::swap(this->_compare, other._compare);
-		}
-
-template<class Content, class Compare, class Alloc>
-void swap(const  RBTree<Content, Compare, Alloc>& lhs, const  RBTree<Content, Compare, Alloc>& rhs){
-	lhs.swap(rhs);
-}
-
-
-//
-	void swap(rbtree &other) { std::swap(_root, other._root); }
-
