@@ -1,6 +1,10 @@
 #ifndef RBTREE_ITERATOR_HPP
 # define RBTREE_ITERATOR_HPP
 
+# include "utility.hpp"
+# include "type_traits.hpp"
+# include "iterator_traits.hpp"
+
 template < class Data >
 	struct Node {
 		public:
@@ -13,15 +17,8 @@ template < class Data >
 		bool	is_black;
 		bool	is_nil;
 
-		explicit Node( Data d = 0 ) : data(d), parent(NULL), left(NULL), right(NULL),
+		explicit Node( Data *d = 0 ) : data(d), parent(0), left(0), right(0),
 									is_black(false), is_nil(false) {}
-
-		/*
-		Node( Data data ) {
-			this->data = data;
-			color = RED;
-			left = right = parent = NULL;
-		}*/
 
 		Node( const Node& ref ) { *this = ref; }
 
@@ -31,7 +28,7 @@ template < class Data >
 			if (this == &other)
 				return *this;
 			this->data = other.data;
-			this->parnet = other.parent;
+			this->parent = other.parent;
 			this->left = other.left;
 			this->right = other.right;
 			this->is_black = other.is_black;
@@ -49,8 +46,7 @@ class TreeIterator {
 		typedef typename ft::iterator_traits<T*>::reference			reference;
 		typedef typename ft::iterator_traits<T*>::pointer			pointer;
 		typedef typename ft::iterator_traits<T*>::difference_type	difference_type;
-		typedef Node<typename std::remove_const<value_type>::type >* node_ptr;
-		//typedef Node<typename ft::remove_const<value_type>::type >* node_ptr;
+		typedef Node<typename ft::remove_const<value_type>::type >* node_ptr;//node_pointer
 
 	private:
 		node_ptr	ptr_;
@@ -68,17 +64,19 @@ class TreeIterator {
 		}
 
 	public:
+	
 		TreeIterator() {}
 
-		//TreeIter(const TreeIter<typename ft::remove_const<value_type>::type > & other)//: _node(other.node()) {}
-		TreeIterator( const TreeIterator &ref ) {
+		TreeIterator( void *ptr ) : ptr_(static_cast<node_ptr>(ptr)) {}
+
+		TreeIterator( const TreeIterator<typename ft::remove_const<value_type>::type> &ref ) {
+		// : ptr_(ref.ptr_) {
 			*this = ref;
 		}
 
 		~TreeIterator() {}
 
-		//TreeIter& operator=(const TreeIter<typename ft::remove_const<value_type>::type>& other) {
-		TreeIterator& operator=( const TreeIterator &other ) {
+		TreeIterator& operator=( const TreeIterator<typename ft::remove_const<value_type>::type> &other ) {
 			if (this != &other)
 				ptr_ = other.ptr_;
 			return *this;

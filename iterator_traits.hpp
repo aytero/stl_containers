@@ -25,7 +25,7 @@ class ft::iterator_traits {
 };
 
 template <class T>
-class ft::iterator_traits<T *> {
+class ft::iterator_traits<T*> {
 	public:
 		typedef std::ptrdiff_t	difference_type;
 		typedef T				value_type;
@@ -34,8 +34,6 @@ class ft::iterator_traits<T *> {
 		typedef std::random_access_iterator_tag	iterator_category;
 };
 
-/*
-// const 
 template <class T>
 class ft::iterator_traits<const T*> {
 	public:
@@ -45,5 +43,5 @@ class ft::iterator_traits<const T*> {
 		typedef T&				reference;
 		typedef std::random_access_iterator_tag	iterator_category;
 };
-*/
+
 #endif

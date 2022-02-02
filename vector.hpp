@@ -27,6 +27,7 @@ class ft::vector {
 		typedef typename Alloc::const_pointer	const_pointer;
 		typedef typename Alloc::difference_type	difference_type;
 		typedef size_t							size_type;
+		//typedef pointer							iterator_type;
 		//typedef iterator;
 		//typedef ft::vector::const_iterator	const_iterator;
 		//typedef reverse_iterator;
@@ -49,6 +50,9 @@ class ft::vector {
 				//typedef typename Alloc::const_reference	const_reference;
 				typedef typename Alloc::difference_type	difference_type;
 				typedef std::random_access_iterator_tag	iterator_category;
+				
+
+				typedef pointer							iterator_type;
 
 				const_iterator( pointer ptr = NULL ) : ptr_(ptr) {}
 				const_iterator( const const_iterator &ref ) : ptr_(ref.ptr_) {}
@@ -106,6 +110,9 @@ class ft::vector {
 				typedef typename Alloc::reference		reference;
 				typedef typename Alloc::difference_type	difference_type;
 				typedef std::random_access_iterator_tag	iterator_category;
+
+				typedef pointer							iterator_type;
+
 
 		//iterator(T *ptr = NULL) : cit(ptr) {}
 				iterator( pointer ptr = NULL ) : const_iterator(ptr) {
@@ -178,53 +185,6 @@ class ft::vector {
 		typedef typename ft::reverse_iterator<iterator>			reverse_iterator;
 		typedef typename ft::reverse_iterator<const_iterator>	const_reverse_iterator;
 
-
-		/*
-		// from book
-		vector() {}
-		explicit vector( const Alloc& al ) {}
-		explicit vector( size_type n ) {}
-		vector( size_type n, const T& x ) {}
-		vector( size_type n, const T& x, const Alloc& al ) {}
-		vector( const vector& x ) {}
-		template <class InIt>
-			vector( InIt first, InIt last ) {}
-		template <class InIt>
-			vector( InIt first, InIt last, const Alloc& al ) {}
-			*/
-
-		// from cppreference
-/*
-		vector() : alloc_(Alloc()), capacity_(0), size_(0), arr_(NULL) {}
-
-		explicit vector( const Alloc& al ) : alloc_(al), capacity_(0), size_(0), arr_(NULL) {}
-
-		vector( const vector& x ) : capacity_(0), size_(0), arr_(NULL) { *this = x; }
-
-		explicit vector( size_type n, const T& value = T(), const Alloc& al = Alloc() )
-				: alloc_(al), capacity_(n), size_(n), arr_(alloc_.allocate(n)) {
-			//for (size_type i = 0; i < size_; i++)
-			//	arr_[i] = val;
-			assign(n, value);
-			std::cout << "fill\n";
-		}
-
-		explicit vector(size_type count) : capacity_(count),
-									   size_(count),
-									   arr_(alloc_.allocate(count)) {}
-
-		template <class InputIt>
-			vector( InputIt first, InputIt last, const Alloc& al = Alloc() )
-				: alloc_(al), capacity_(0), size_(0), arr_(NULL) {
-			assign(first, last);
-			//insert(begin(), first, last);
-			std::cout << "range\n";
-		}
-
-*/
-
-
-		//from cplusplus
 		// default
 		explicit vector( const allocator_type& alloc = allocator_type() )
 			: alloc_(alloc), capacity_(0), size_(0), arr_(NULL) {}
@@ -419,30 +379,7 @@ class ft::vector {
 			for (size_type i = idx; i < idx + n; ++i)
 				arr_[i] = val;
 		}
-	/*
-	iterator insert(iterator position, const T &val)
-	{
-		size_type idx = std::distance(begin(), position);
-		reserve(_size + 1);
-		for (size_type i = _size; i > idx; i--)
-			_values[i] = _values[i - 1];
-		_size++;
-		_values[idx] = val;
-		return iterator(_values + idx);
-	}
-	void insert(iterator position, size_type n, const T &val)
-	{
-		size_type idx = std::distance(begin(), position);
-		reserve(_size + n);
-		for (size_type i = _size; i > idx; i--)
-			_values[i - 1 + n] = _values[i - 1];
-		_size += n;
-		for (size_type i = 0; i < n; i++)
-			_values[idx + i] = val;
-	}
-	*/
 
-		// finish when able to distinguish int and iter
 		// range
 		template < class InputIterator >
 		void		insert( iterator position, InputIterator first,
@@ -480,25 +417,6 @@ class ft::vector {
 			*/
 		}
 
-/*
-	iterator erase(iterator pos)
-	{
-		size_type idx = pos - begin();
-		for (size_type i = idx; i < _size - 1; i++)
-			_values[i] = _values[i + 1];
-		_size--;
-		return iterator(_values + idx);
-	}
-	iterator erase(iterator first, iterator last)
-	{
-		size_type idx = first - begin();
-		size_type n = last - first;
-		for (size_type i = idx; i < _size - n; i++)
-			_values[i] = _values[i + n];
-		_size -= n;
-		return iterator(_values + idx);
-	}
-	*/
 		iterator erase( iterator position ) {
 			size_type	index = position - begin();
 			//if (position != end()) {

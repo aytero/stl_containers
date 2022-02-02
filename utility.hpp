@@ -1,8 +1,12 @@
 #ifndef UTILITY_HPP
 # define UTILITY_HPP
 
+# include "type_traits.hpp"
+//# include "iterator_traits.hpp"
+
 namespace ft
 {
+	/*
 	template <class T1, class T2>
 		struct pair;
 
@@ -23,10 +27,20 @@ namespace ft
 	template < class InputIt1, class InputIt2, class Compare >
 		bool lexicographical_compare( InputIt1 first1, InputIt1 last1,
 									InputIt2 first2, InputIt2 last2, Compare comp );
-}
+}*/
+
+template <class C>
+struct remove_const {
+	typedef C type;
+};
+
+template <class C>
+struct remove_const <const C> {
+	typedef C type;
+};
 
 template < class InputIt1, class InputIt2 >
-	bool ft::equal( InputIt1 first1, InputIt1 last1, InputIt2 first2 ) {
+	bool equal( InputIt1 first1, InputIt1 last1, InputIt2 first2 ) {
 		while (first1 != last1) {
 			if (!(*first1 == *first2))
 				return false;
@@ -37,7 +51,7 @@ template < class InputIt1, class InputIt2 >
 	}
 
 template < class InputIt1, class InputIt2, class BinaryPredicate >
-	bool ft::equal( InputIt1 first1, InputIt1 last1,
+	bool equal( InputIt1 first1, InputIt1 last1,
 				InputIt2 first2, BinaryPredicate pred) {
 		while (first1 != last1) {
 			if (!(pred(*first1, *first2)))
@@ -49,7 +63,31 @@ template < class InputIt1, class InputIt2, class BinaryPredicate >
 	}
 
 template < class InputIt1, class InputIt2 >
-	bool ft::lexicographical_compare( InputIt1 first1, InputIt1 last1,
+	bool lexicographical_compare( InputIt1 first1, InputIt1 last1,
+								InputIt2 first2, InputIt2 last2 ) {
+		for (; first1 != last1 && first2 != last2; ++first1, ++first2) {
+			if (*first1 < *first2)
+				return true;
+			if (*first2 < *first1)
+				return false;
+		}
+		return first1 == last1 && first2 != last2;
+	}
+
+template < class InputIt1, class InputIt2, class Compare >
+	bool lexicographical_compare( InputIt1 first1, InputIt1 last1,
+								InputIt2 first2, InputIt2 last2, Compare comp ) {
+		for (; first1 != last1 && first2 != last2; ++first1, ++first2) {
+			if (comp(*first1, *first2))
+				return true;
+			if (comp(*first1, *first2))
+				return false;
+		}
+		return first1 == last1 && first2 != last2;
+	}
+/*
+template < class InputIt1, class InputIt2 >
+	bool lexicographical_compare( InputIt1 first1, InputIt1 last1,
 								InputIt2 first2, InputIt2 last2 ) {
 		while (first1 != last1) {
 			if (first2 != last2 || *first2 < *first1)
@@ -63,7 +101,7 @@ template < class InputIt1, class InputIt2 >
 	}
 
 template < class InputIt1, class InputIt2, class Compare >
-	bool ft::lexicographical_compare( InputIt1 first1, InputIt1 last1,
+	bool lexicographical_compare( InputIt1 first1, InputIt1 last1,
 								InputIt2 first2, InputIt2 last2, Compare comp ) {
 		while (first1 != last1) {
 			if (first2 != last2 || comp(*first2, *first1))
@@ -75,26 +113,25 @@ template < class InputIt1, class InputIt2, class Compare >
 		}
 		return (first2 != last2);
 	}
-
-
-template <class T1, class T2>
-	ft::pair<T1,T2> ft::make_pair( T1 x, T2 y ) {
-		return ft::pair<T1, T2>(x, y);
-	}
+*/
 
 template <class T1, class T2>
-	struct ft::pair {
+	struct pair {
 		T1	first;
 		T2	second;
 	
 		typedef T1	first_type;
 		typedef T2	second_type;
 	
-		pair() : first(T1()), second(T2()) {}
+		pair() : first(), second() {}
+
+		//pair() : first(T1()), second(T2()) {}
 	
 		template < class U, class V >
 			pair( const pair<U,V>& b ) : first(b.first), second(b.second) {}
 	
+		pair( const pair& b ) : first(b.first), second(b.second) {}
+
 		pair( const first_type& a, const second_type& b ) : first(a), second(b) {}
 	
 		pair& operator=( const pair &pr ) {
@@ -107,33 +144,72 @@ template <class T1, class T2>
 	};
 
 template <class T1, class T2>
-	bool operator==( const ft::pair<T1,T2>& lhs, const ft::pair<T1,T2>& rhs ) {
+	pair<T1,T2> make_pair( T1 x, T2 y ) {
+		return pair<T1, T2>(x, y);
+	}
+
+template <class T1, class T2>
+	bool operator==( const pair<T1,T2>& lhs, const pair<T1,T2>& rhs ) {
 		return lhs.first == rhs.first && lhs.second == rhs.second;
 	}
 
 template <class T1, class T2>
-	bool operator!=( const ft::pair<T1,T2>& lhs, const ft::pair<T1,T2>& rhs ) {
+	bool operator!=( const pair<T1,T2>& lhs, const pair<T1,T2>& rhs ) {
 		return !(lhs == rhs);
 	}
 
 template <class T1, class T2>
-	bool operator<( const ft::pair<T1,T2>& lhs, const ft::pair<T1,T2>& rhs ) {
+	bool operator<( const pair<T1,T2>& lhs, const pair<T1,T2>& rhs ) {
 		return lhs.first < rhs.first || (!(rhs.first < lhs.first) && lhs.second < rhs.second);
 	}
 
 template <class T1, class T2>
-	bool operator<=( const ft::pair<T1,T2>& lhs, const ft::pair<T1,T2>& rhs ) {
+	bool operator<=( const pair<T1,T2>& lhs, const pair<T1,T2>& rhs ) {
 		return !(rhs < lhs);
 	}
 
 template <class T1, class T2>
-	bool operator>( const ft::pair<T1,T2>& lhs, const ft::pair<T1,T2>& rhs ) {
+	bool operator>( const pair<T1,T2>& lhs, const pair<T1,T2>& rhs ) {
 		return rhs < lhs;
 	}
 
 template <class T1, class T2>
-	bool operator>=( const ft::pair<T1,T2>& lhs, const ft::pair<T1,T2>& rhs ) {
+	bool operator>=( const pair<T1,T2>& lhs, const pair<T1,T2>& rhs ) {
 		return !(lhs < rhs);
 	}
+
+/*
+template <class Iterator>
+class iterator_traits {
+	public:
+		typedef typename Iterator::difference_type		difference_type;
+		typedef typename Iterator::value_type			value_type;
+		typedef typename Iterator::pointer				pointer;
+		typedef typename Iterator::reference			reference;
+		typedef typename Iterator::iterator_category	iterator_category;
+};
+
+template <class T>
+class iterator_traits<T*> {
+	public:
+		typedef std::ptrdiff_t	difference_type;
+		typedef T				value_type;
+		typedef T*				pointer;
+		typedef T&				reference;
+		typedef std::random_access_iterator_tag	iterator_category;
+};
+
+template <class T>
+class iterator_traits<const T*> {
+	public:
+		typedef std::ptrdiff_t	difference_type;
+		typedef T				value_type;
+		typedef T*				pointer;
+		typedef T&				reference;
+		typedef std::random_access_iterator_tag	iterator_category;
+};
+*/
+
+};
 
 #endif

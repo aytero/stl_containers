@@ -8,6 +8,7 @@
 
 #include <list>//
 #include "map.hpp"
+#include "set.hpp"
 #include "rbtree.hpp"
 
 template <class V>
@@ -229,9 +230,42 @@ int	main() {
 //	if (ft::is_integral<ig>::value)
 //		std::cout << "it's bool it's integral\n";
 
+
 	ft::map<int, std::string> mp;
 
 	mp.insert(ft::make_pair(1, "hello"));
+
+	std::cout << mp.size() << "\n";
+	//ft::map<int,std::string>::iterator it = mp.begin();
+	std::cout << mp.begin()->first << ", " << mp.begin()->second << "\n";
+
+	ft::map<int, std::string> mp1(mp);
+	//ft::map<int, std::string> mp1(mp.begin(), mp.end());
+	
+
+
+	ft::set<int> setik;
+
+	setik.size();
+
+	//std::vector<int> v;
+	ft::map<int,int> mpt;
+
+    for (int i = 0, j = 10; i < 30; ++i, ++j) {
+		//std::cout << "main TESTIK\n";
+        mpt.insert(ft::make_pair(i, j));
+    }
+	//ft::map<int, int> mp2(mp.begin(), mp.end());
+	//ft::map<int, int>::iterator it = mp2.begin();
+    //for (int i = 0; i < 5; ++i, it++) {
+    //    v.push_back(it->first);
+    //    v.push_back(it->second);
+    //}
+
+	std::cout << (mp < mp) << "\n";
+	mp.equal_range(1);
+	//mp.value_compare(1, 2);
+	mp.erase(1);
 
 	return 0;
 }
