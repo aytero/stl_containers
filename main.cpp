@@ -1,95 +1,30 @@
 #include "vector.hpp"
 #include "stack.hpp"
 #include <iostream>
+
 #include <vector>
+#include <list>//
 
 #include "utility.hpp"
 #include "type_traits.hpp"
 
-#include <list>//
 #include "map.hpp"
 #include "set.hpp"
 #include "rbtree.hpp"
 
-template <class V>
-void	print_vector( V v ) {
-
-	std::vector<int>::const_iterator	it = v.begin();
-	std::vector<int>::const_iterator	ite = v.end();
-
-	for (; it != ite; ++it) {
-		std::cout << *it << " ";
-	}
-	std::cout << "\n";
-}
-
-class B {
-public:
-	char *l;
-	int i;
-	B():l(nullptr), i(1) {};
-	B(const int &ex) {
-		this->i = ex;
-		this->l = new char('a');
-	};
-	virtual ~B() {
-		delete this->l;
-		this->l = nullptr;
-	};
-};
-
-class A : public B {
-public:
-	A():B(){};
-	A(const B* ex){
-		this->l = new char(*(ex->l));
-		this->i = ex->i;
-		if (ex->i == -1) throw "n";
-	}
-	~A() {
-		delete this->l;
-		this->l = nullptr;
-	};
-};
-
-template <typename T>
-std::vector<int> insert_test_1(std::vector<T> vector) {
-    std::vector<int> v;
-    vector.assign(26000000, 1);
-    v.push_back(*(vector.insert(vector.end() - 8000000, 44)));
-    v.push_back(vector.size());
-    v.push_back(vector.capacity());
-    std::unique_ptr<B> k2(new B(3));
-    std::unique_ptr<B> k3(new B(4));
-    std::unique_ptr<B> k4(new B(-1));
-    std::vector<A> vv;
-    std::vector<B*> v1;
-
-	std::cout << &(*k4) << "\n";
-
-    v1.push_back(&(*k2));
-    v1.push_back(&(*k3));
-    v1.push_back(&(*k4));
-
-	try {
-    	vv.insert(vv.begin(), v1.begin(), v1.end());
-	}
-	catch ( char const * e ) {
-		std::cout << e << "\n";
-		std::cout << "EXC\n";
-	}
-	return v;
-}
-
 int	main() {
 
 
-	std::vector<int> v;
+	//ft::stack<int, std::vector<int> > st;
+	//ft::stack<int, std::vector<int> > ste;
+	ft::stack<int> st;
+	ft::stack<int> ste;
 
-	insert_test_1(v);
-	/*
+	std::cout << (st == st) << "\n";
+
+	//insert_test_1(v);
 	ft::stack<int>	em;
-	ft::stack<int>	st;
+	//ft::stack<int>	st;
 
 	em.push(8);
 
@@ -108,6 +43,13 @@ int	main() {
 	//std::cout << "empty front: " << v.front() << "\n";
 	std::cout << "size: " << vfill.size() << "\n";
 	std::cout << "elem [1]: " << vfill[1] << "\n";
+
+	ft::vector<int> iters(vfill.begin(), vfill.end());
+
+	iters.insert(iters.begin(), 1);
+
+	v.reserve(100);
+	v.begin();
 	//std::cout << "elem [1]: " << vfillval[1] << "\n";
 	//std::cout << "front:  " << vfillval.front() << "\n";
 //	try {
@@ -116,7 +58,6 @@ int	main() {
 ///	catch ( std::out_of_range& oor ) {
 //		std::cerr << "Out of Range error: " << oor.what() << "\n";
 //	}
-*/
 
 	/*
 	std::vector<int>	stv(3, 8);
@@ -328,6 +269,12 @@ int	main() {
 	mp.equal_range(1);
 	//mp.value_compare(1, 2);
 	mp.insert(mp.begin(), ft::make_pair(2, "Hi"));
+
+	ft::map<int,std::string>::iterator itik = --mp.end();
+	//int bbb = --mp.end()->first;
+	std::cout << itik->first << " --END\n";
+	
+	mp.erase(mp.begin(), --mp.end());
 
 	mp.erase(mp.begin(), mp.end());
 	mp.erase(1);

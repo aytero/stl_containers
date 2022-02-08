@@ -43,9 +43,6 @@ class RBTree {
 		nodePtr			head_;
 		size_type		size_;
 
-		//struct Node*	tnull_;
-	
-
 	public:
 		//enum color_t { RED, BLACK };
 
@@ -67,6 +64,7 @@ class RBTree {
 			RBTree( typename ft::enable_if< !ft::is_integral<InputIt>::value, InputIt >::type first,
 					InputIt last, const Compare& comp, const Allocator& alloc = Allocator() )
 					: val_alloc_(alloc), node_alloc_(node_allocator()), compare_(comp) {
+				size_ = 0;
 				init_nil_head();
 				root_ = head_;
 				for (; first != last; ++first)
@@ -112,7 +110,6 @@ class RBTree {
 	}
 	///////////////
 
-
 		RBTree& operator=( const RBTree &other ) {
 			if (this == &other)
 				return *this;
@@ -120,11 +117,11 @@ class RBTree {
 			node_alloc_ = other.node_alloc_;
 			compare_ = other.compare_;
 			
-			root_ == 0 ? init_nil_head() : free_node(root_);
-			//if (root_ == 0)
-			//	init_nil_head();
-			//else
-			//	free_node(root_);
+			//root_ == 0 ? init_nil_head() : free_node(root_);
+			if (root_ == 0)
+				init_nil_head();
+			else
+				free_node(root_);
 
 			if (other.size_ == 0)
 				root_ = head_;
@@ -182,7 +179,7 @@ class RBTree {
 		}
 
 		// TODO
-		pointer	create_value(const value_type &value){
+		pointer	create_value( const value_type &value ) {
 			pointer new_val = val_alloc_.allocate(1);
 			val_alloc_.construct(new_val, value);
 			return new_val;
@@ -230,6 +227,35 @@ class RBTree {
 
 
 		/////////////
+
+		void rb_insert( nodePtr z ) {
+			nodePtr y = nil_;
+			nodePtr x = root_;
+			//while (x != nil_) {
+			while (!is_nil(x)) {
+				y = x;
+				if (compare_(*z->data, *x->data)) {
+				//if (z.key < x.key) {
+					x = x->left;
+				} else {
+					x = x->right;
+				}
+			}
+			z->parent = y;
+			if (is_nil(y)) {
+				root_ = z;
+			} else if (compare_(*z->data, *y->data)) {
+			//} else if (z.key < y.key) {
+				y->left = z;
+			} else {
+				y->right = z;
+			}
+			z->left = nil_;
+			z->right = nil_;
+			z->is_black = false;// RED
+
+			//rb_insert_fixup(z);
+		}
 
 		ft::pair<iterator,bool> insert( const value_type &val ){
 			nodePtr new_node = findVal(root_, val);
@@ -288,7 +314,7 @@ class RBTree {
 		}
 
 		size_type max_size() const {
-			return val_alloc_.max_size();
+			return node_alloc_.max_size();
 		}
 
 		value_compare value_comp() const {
@@ -299,10 +325,11 @@ class RBTree {
 			return val_alloc_;
 		}
 
+
 		void erase( iterator position ) {
 			nodePtr n = position.getNode();
 			nodePtr to_free = n;
-			nodePtr x = nil_;
+			nodePtr x;
 			bool n_orig_is_black = n->is_black;
 
 			if (is_nil(n->left)) {
@@ -316,22 +343,26 @@ class RBTree {
 				n = tree_min(z->right);
 				n_orig_is_black = n->is_black;
 				x = n->right;
-//				if (y->parent != z){
-//					transplant(y, y->right);
-//					y->right = z->right;
-//					z->right->parent = y;
+
+				if (n->parent != z) {
+					rb_transplant(n, n->right);
+					n->right = z->right;
+					z->right->parent = n;
+				}
+				/*
 				if (n->parent == z)
 					x->parent = n;
 				else {
 					rb_transplant(n, n->right);
 					n->right = z->right;
 					z->right->parent = n;
-				}
+				}*/
 				rb_transplant(z, n);
 				n->left = z->left;
 				n->left->parent = n;
 				n->is_black = z->is_black;
 			}
+
 			//erase_node(to_free);
 			val_alloc_.destroy(to_free->data);
 			val_alloc_.deallocate(to_free->data, 1);
@@ -355,18 +386,19 @@ class RBTree {
 		}
 
 		size_type erase( const value_type& value ) {
-			nodePtr	node = findVal(root_, value);//search for node
+			nodePtr	node = findVal(root_, value);
 
 			if (node)
 				erase(iterator(node));
 			return (node != 0);// number of elems erased
 		}
 
-		template <class InputIterator>
-			void erase( typename ft::enable_if<!ft::is_integral<InputIterator>::value,
-							InputIterator>::type first, InputIterator last ) {
-				for (; first != last; ++first)
-					erase(first);
+		//template <class InputIterator>
+			//void erase( typename ft::enable_if<!ft::is_integral<InputIterator>::value,
+			//				InputIterator>::type first, InputIterator last ) {
+			void erase( iterator first, iterator last ) {
+				while (first != last)
+					erase(first++);
 			}
 
 		void clear() {
@@ -396,7 +428,7 @@ class RBTree {
 			iterator ite = end();
 			for (iterator it = begin(); it != ite; ++it) {
 				if (!compare_(*it, val))
-					return (it);
+					return it;
 			}
 			return ite;
 		}
@@ -405,7 +437,7 @@ class RBTree {
 			const_iterator ite = end();
 			for (const_iterator it = begin(); it != ite; ++it) {
 				if (!compare_(*it, val))
-					return (it);
+					return it;
 			}
 			return ite;
 		}
@@ -414,7 +446,7 @@ class RBTree {
 			iterator ite = end();
 			for (iterator it = begin(); it != ite; ++it) {
 				if (compare_(val, *it))
-					return (it);
+					return it;
 			}
 			return ite;
 		}
@@ -423,7 +455,7 @@ class RBTree {
 			const_iterator ite = end();
 			for (const_iterator it = begin(); it != ite; ++it) {
 				if (compare_(val, *it))
-					return (it);
+					return it;
 			}
 			return ite;
 		}
@@ -460,18 +492,19 @@ class RBTree {
 		}
 
 		/*
-		nodePtr findVal( nodePtr node, const Data& data ) const {
-			//nodePtr	node = root_;
-			while (node) {
-				if (compare_(data, node->data))
+		nodePtr findVal( nodePtr node, const value_type& val ) const {
+			while (node && !is_nil(node)) {
+				if (compare_(val, *node->data))
 					node = node->left;
-				else if (compare_(node->data, data))
+				else if (compare_(*node->data, val))
 					node = node->right;
 				else
 					break ;
 			}
 			return node;
-		}*/
+		}
+		*/
+
 		nodePtr findVal( nodePtr node, const value_type& data ) const {
 			if (!node || is_nil(node))
 				return 0;
@@ -488,25 +521,17 @@ class RBTree {
 				return ;
 			free_node(n->left);
 			free_node(n->right);
-			//n->~Node();
-			//alloc_.deallocate(n, 1);
-			//delete n;
-			// val destroy
-			// val dealloc
-			//node dealloc
 			val_alloc_.destroy(n->data);
 			val_alloc_.deallocate(n->data, 1);
 			node_alloc_.deallocate(n, 1);
-
 		}
 
-		void	treePrint() {
+		void treePrint() {
 			if (root_)
 				printHelper(root_, 0);
 		}
 
-		void printHelper(const nodePtr root, int lvl)
-		{
+		void printHelper(const nodePtr root, int lvl) {
 			if (!root)
 				return ;
 			printHelper(root->right, lvl + 1);
@@ -519,6 +544,19 @@ class RBTree {
 		void rotateLeft( nodePtr n ) {
 			nodePtr	pivot = n->right;
 
+			n->right = pivot->left;
+			if (!is_nil(pivot->left))
+				pivot->left->parent = n;
+			pivot->parent = n->parent;
+			if (n->parent == 0)
+				root_ = pivot;
+			else if (n == n->parent->left)
+				n->parent->left = pivot;
+			else
+				n->parent->right = pivot;
+			pivot->left = n;
+			n->parent = pivot;
+			/*
 			pivot->parent = n->parent;
 			if (n->parent != NULL) {
 				if (n->parent->left == n)
@@ -532,11 +570,25 @@ class RBTree {
 				pivot->left->parent = n;
 			n->parent = pivot;
 			pivot->left = n;
+			*/
 		}
 
 		void	rotateRight( nodePtr n ) {
 			nodePtr	pivot = n->left;
 
+			n->left = pivot->right;
+			if (!is_nil(pivot->right))
+				pivot->right->parent = n;
+			pivot->parent = n->parent;
+			if (n->parent == 0)
+				root_ = pivot;
+			else if (n == n->parent->left)
+				n->parent->left = pivot;
+			else
+				n->parent->right = pivot;
+			pivot->right = n;
+			n->parent = pivot;
+			/*
 			pivot->parent = n->parent;
 			if (n->parent != NULL) {
 				if (n->parent->left == n)
@@ -550,40 +602,11 @@ class RBTree {
 				pivot->right->parent = n;
 			n->parent = pivot;
 			pivot->right = n;
+			*/
 		}
 
 		bool is_nil( nodePtr node ) const {
 			return node == nil_ || node == head_;
-		}
-
-		void rb_insert( nodePtr z ) {
-			nodePtr y = nil_;
-			nodePtr x = root_;
-			//while (x != nil_) {
-			while (!is_nil(x)) {
-				y = x;
-				//std::cout << " HERE\n";
-				if (compare_(*z->data, *x->data)) {
-				//if (z.key < x.key) {
-					x = x->left;
-				} else {
-					x = x->right;
-				}
-			}
-			z->parent = y;
-			if (is_nil(y)) {
-				root_ = z;
-			} else if (compare_(*z->data, *y->data)) {
-			//} else if (z.key < y.key) {
-				y->left = z;
-			} else {
-				y->right = z;
-			}
-			z->left = nil_;
-			z->right = nil_;
-			z->is_black = false;// RED
-
-			//rb_insert_fixup(z);
 		}
 
 		void rb_insert_fixup( nodePtr node ) {
@@ -628,9 +651,7 @@ class RBTree {
 		}
 
 		void rb_transplant( nodePtr u, nodePtr v ) {
-			// u == root_
 			if (u == root_)
-			//if (u->parent == nil_)
 				root_ = v;
 			else if (u == u->parent->left)
 				u->parent->left = v;
@@ -659,6 +680,7 @@ class RBTree {
 							w->left->is_black = true;// BLACK
 							w->is_black = false;// RED
 							rotateRight(w);
+							w = x->parent->right;
 						}
 						w->is_black = x->parent->is_black;
 						x->parent->is_black = true;// BLACK
@@ -682,6 +704,7 @@ class RBTree {
 							w->right->is_black = true;// BLACK
 							w->is_black = false;// RED
 							rotateLeft(w);
+							w = x->parent->left;
 						}
 						w->is_black = x->parent->is_black;
 						x->parent->is_black = true;// BLACK
@@ -692,7 +715,7 @@ class RBTree {
 				}
 			}
 		}
-	
+
 		nodePtr	tree_min( nodePtr n ) const {
 			nodePtr	ptr = n;
 			
@@ -702,7 +725,7 @@ class RBTree {
 		}
 
 		nodePtr	tree_max( nodePtr n ) const {
-			nodePtr	ptr = n;//// TODO
+			nodePtr	ptr = n;
 			
 			while (ptr->right != 0 && !is_nil(ptr->right))
 				ptr = ptr->right;

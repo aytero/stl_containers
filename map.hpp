@@ -14,7 +14,6 @@ namespace ft {
 	class map {
 
 	public:
-
 		typedef Key									key_type;
 		typedef T									mapped_type;
 		typedef ft::pair<const Key, T>				value_type;
@@ -24,7 +23,6 @@ namespace ft {
 		typedef typename Allocator::const_reference	const_reference;
 		typedef std::size_t							size_type;
 		typedef std::ptrdiff_t						difference_type;
-		//typedef ft::iterator_traits<iterator>::difference_type	diference_type;
 		typedef typename Allocator::pointer			pointer;
 		typedef typename Allocator::const_pointer	const_pointer;
 
@@ -40,7 +38,6 @@ namespace ft {
 			}
 		};
 
-		//typedef value_compare value_compare;
 		typedef RBTree<value_type, value_compare, allocator_type>	tree_type;
 		typedef typename tree_type::iterator						iterator;
 		typedef typename tree_type::const_iterator					const_iterator;
@@ -61,12 +58,7 @@ namespace ft {
 		template <class InputIt>
 			map( InputIt first, InputIt last, const Compare& comp = Compare(),
 					const Allocator& alloc = Allocator() )
-					: alloc_(alloc), cmp_(comp), tree_(first, last, comp, alloc_) {
-				//while (first != last) {
-				//	insert(*first);
-				//	++first;
-				//}
-			}
+					: alloc_(alloc), cmp_(comp), tree_(first, last, comp, alloc_) {}
 
 		map( const map<Key, T, Compare, Allocator> &ref )
 					: alloc_(ref.alloc_), cmp_(ref.cmp_), tree_(ref.tree_) {}
@@ -127,7 +119,12 @@ namespace ft {
 			return (res->second);
 		}
 
-
+		const T& at( const Key &k ) const {
+			const_iterator res = tree_.find(ft::make_pair(k, mapped_type()));
+			if (res == tree_.end())
+				throw std::out_of_range("map::at: key not found");
+			return (res->second);
+		}
 
 		// single elem
 		pair<iterator, bool> insert( const value_type& val ) {
@@ -144,9 +141,6 @@ namespace ft {
 			void insert( typename enable_if<!is_integral<InputIt>::value, InputIt>::type first,
 						InputIt last ) {
 				tree_.insert(first, last);
-				//while (first != last) {
-				//	tree_.insert(first);
-				//}
 			}
 
 		void erase( iterator position ) {
@@ -154,13 +148,6 @@ namespace ft {
 		}
 
 		size_type erase( const key_type& k ) {
-			/*
-			iterator	it = find(k);
-			if (it == end())
-				return 0;
-			erase(it);
-			return 1;
-			*/
 			return tree_.erase(ft::make_pair(k, mapped_type()));
 		}
 
@@ -180,7 +167,6 @@ namespace ft {
 		key_compare		key_comp() const { return cmp_; }
 		value_compare	value_comp() const { return tree_.value_comp(); }
 		allocator_type	get_allocator() const { return tree_.get_allocator(); }
-		//allocator_type	get_allocator() const { return alloc_; }
 
 		iterator find( const key_type& k ) {
 			return tree_.find(make_pair(k, mapped_type()));
@@ -225,8 +211,6 @@ namespace ft {
 		template <class key, class t, class compare, class allocator>
 			friend bool operator<( const map<key,t,compare,allocator>& lhs,
 									const map<key,t,compare,allocator>& rhs);
-
-
 	};
 
 

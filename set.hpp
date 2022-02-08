@@ -13,7 +13,6 @@ namespace ft {
 	class set {
 
 	public:
-
 		typedef Key											key_type;
 		typedef Key											value_type;
 		typedef Compare										key_compare;
@@ -26,7 +25,7 @@ namespace ft {
 		typedef std::ptrdiff_t								difference_type;
 		typedef typename Allocator::pointer					pointer;
 		typedef typename Allocator::const_pointer			const_pointer;
-		typedef typename tree_type::iterator				iterator;// const_iter
+		typedef typename tree_type::iterator				iterator;
 		typedef typename tree_type::const_iterator			const_iterator;
 		typedef typename tree_type::reverse_iterator		reverse_iterator;
 		typedef typename tree_type::const_reverse_iterator	const_reverse_iterator;
@@ -223,7 +222,7 @@ namespace ft {
 						const set<Key,Compare,Allocator>& rhs) {
 			return !(lhs < rhs);
 		}
-};
+}
 
 template <class Key, class Compare, class Allocator>
 	void swap( ft::set<Key,Compare,Allocator>& lhs,

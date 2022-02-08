@@ -17,7 +17,7 @@ template < class Data >
 		bool	is_nil;
 
 		explicit Node( Data *d = 0 ) : data(d), parent(0), left(0), right(0),
-									is_black(false), is_nil(false) {}
+										is_black(false), is_nil(false) {}
 
 		Node( const Node& ref ) { *this = ref; }
 
@@ -45,7 +45,7 @@ class TreeIterator {
 		typedef typename ft::iterator_traits<T*>::reference			reference;
 		typedef typename ft::iterator_traits<T*>::pointer			pointer;
 		typedef typename ft::iterator_traits<T*>::difference_type	difference_type;
-		typedef Node<typename ft::remove_const<value_type>::type >* node_ptr;//node_pointer
+		typedef Node<typename ft::remove_const<value_type>::type >* node_ptr;
 
 	private:
 		node_ptr	ptr_;
@@ -69,7 +69,6 @@ class TreeIterator {
 		TreeIterator( void *ptr ) : ptr_(static_cast<node_ptr>(ptr)) {}
 
 		TreeIterator( const TreeIterator<typename ft::remove_const<value_type>::type> &ref ) {
-		// : ptr_(ref.ptr_) {
 			*this = ref;
 		}
 
@@ -80,8 +79,13 @@ class TreeIterator {
 			return *this;
 		}
 
-		reference operator*() const { return *(ptr_->data); }
-		pointer operator->() const { return ptr_->data; }
+		reference operator*() const {
+			return *(ptr_->data);
+		}
+
+		pointer operator->() const {
+			return ptr_->data;
+		}
 
 		TreeIterator& operator++() {
 			if (ptr_->right && !ptr_->right->is_nil) {
@@ -110,7 +114,6 @@ class TreeIterator {
 				}
 				ptr_ = p;
 			}
-
 			return tmp;
 		}
 
@@ -147,7 +150,6 @@ class TreeIterator {
 		node_ptr getNode() const {
 			return ptr_;
 		}
-
 };
 
 template <class A, class B>
