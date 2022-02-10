@@ -1,8 +1,7 @@
 #ifndef TYPE_TRAITS_HPP
 # define TYPE_TRAITS_HPP
 
-namespace ft
-{
+namespace ft {
 	template <bool Cond, class T = void>
 		struct enable_if {};
 	

@@ -1,283 +1,394 @@
-#include "vector.hpp"
-#include "stack.hpp"
+/***********************************************************************************************
+
+Compile && run:
+
+FT:
+clang++ -Wall -Wextra -Werror -std=c++98 -pedantic main.cpp && ./a.out 123 > ft.txt
+
+STL:
+clang++ -Wall -Wextra -Werror -std=c++98 -pedantic -D ST main.cpp && ./a.out 123 > std.txt
+
+Check output:
+diff ft.txt std.txt
+
+Check memory access (slower):
+clang++ -Wall -Wextra -Werror -std=c++98 -pedantic -fsanitize=address main.cpp && ./a.out 123
+
+Check leaks (much slower):
+clang++ -Wall -Wextra -Werror -std=c++98 -pedantic main.cpp && valgrind ./a.out 123
+
+***********************************************************************************************/
+
 #include <iostream>
+#include <string>
+#include <deque>
+#include <ctime>
+#ifdef ST//CREATE A REAL STL EXAMPLE
+	#define NMSP "STD"
+	#include <map>
+	#include <stack>
+	#include <vector>
+	#include <set>
+	namespace ft = std;
+#else
+#define NMSP "FT"
+	#include "map.hpp"
+	#include "stack.hpp"
+	#include "vector.hpp"
+	#include "set.hpp"
+	#include "utility.hpp"
+#endif
 
-#include <vector>
-#include <list>//
+#include <stdlib.h>
 
-#include "utility.hpp"
-#include "type_traits.hpp"
+#define MAX_RAM 4294967296
+#define BUFFER_SIZE 4096
+struct Buffer
+{
+	int idx;
+	char buff[BUFFER_SIZE];
+};
 
-#include "map.hpp"
-#include "set.hpp"
-#include "rbtree.hpp"
+#define COUNT (MAX_RAM / (int)sizeof(Buffer))
 
-int	main() {
+template<typename T>
+class MutantStack : public ft::stack<T>
+{
+public:
+	MutantStack() {}
+	MutantStack(const MutantStack<T>& src) { *this = src; }
+	MutantStack<T>& operator=(const MutantStack<T>& rhs) 
+	{
+		this->c = rhs.c;
+		return *this;
+	}
+	~MutantStack() {}
 
+	typedef typename ft::stack<T>::container_type::iterator iterator;
 
-	//ft::stack<int, std::vector<int> > st;
-	//ft::stack<int, std::vector<int> > ste;
+	iterator begin() { return this->c.begin(); }
+	iterator end() { return this->c.end(); }
+};
+
+template <typename T>
+	void stack_print( const ft::stack<T> &st ) {
+		std::cout << "size: " << st.size() << std::endl;
+		std::cout << "content: " << st.top() << std::endl;
+	}
+
+template <typename T>
+	void vector_print( const ft::vector<T> &vect ) {
+		std::cout << "size: " << vect.size() << " capacity: " << vect.capacity() << std::endl;
+		
+		typename ft::vector<T>::const_iterator it = vect.begin();
+		typename ft::vector<T>::const_iterator ite = vect.end();
+		std::cout << "content: ";
+		for (; it != ite; ++it)
+			std::cout << *it << " ";
+		std::cout << std::endl;
+	}
+
+template <typename T>
+std::string print_pair( const T &iterator, std::ostream &o = std::cout) {
+	o << "key: " << iterator->first << " | value: " << iterator->second;
+	o << std::endl;
+	return "";
+}
+
+template <typename M>
+	void map_print( const M &mp ) {
+		std::cout << "size: " << mp.size() << std::endl;
+		
+		typename M::const_iterator it = mp.begin();
+		typename M::const_iterator ite = mp.end();
+		std::cout << "content: ";
+		for (; it != ite; ++it)
+			std::cout << "- " << print_pair(it) << std::endl;
+		std::cout << std::endl;
+	}
+
+template <typename S>
+	void set_print( const S &st ) {
+		std::cout << "size: " << st.size() << std::endl;
+		
+		typename S::const_iterator it = st.begin();
+		typename S::const_iterator ite = st.end();
+		std::cout << "content: ";
+		for (; it != ite; ++it)
+			std::cout << *it << " ";
+		std::cout << std::endl;
+	}
+
+void subject_test() {
+
+	ft::vector<std::string> vector_str;
+	ft::vector<int> vector_int;
+	ft::stack<int> stack_int;
+	ft::vector<Buffer> vector_buffer;
+	ft::stack<Buffer, std::deque<Buffer> > stack_deq_buffer;
+	ft::map<int, int> map_int;
+
+	for (int i = 0; i < COUNT; i++)
+	{
+		vector_buffer.push_back(Buffer());
+	}
+
+	for (int i = 0; i < COUNT; i++)
+	{
+		const int idx = rand() % COUNT;
+		vector_buffer[idx].idx = 5;
+	}
+	ft::vector<Buffer>().swap(vector_buffer);
+
+	try
+	{
+		for (int i = 0; i < COUNT; i++)
+		{
+			const int idx = rand() % COUNT;
+			vector_buffer.at(idx);
+			std::cerr << "Error: THIS VECTOR SHOULD BE EMPTY!!" <<std::endl;
+		}
+	}
+	catch(const std::exception& e)
+	{
+		//NORMAL ! :P
+	}
+	
+	for (int i = 0; i < COUNT; ++i)
+	{
+		map_int.insert(ft::make_pair(rand(), rand()));
+	}
+
+	int sum = 0;
+	for (int i = 0; i < 10000; i++)
+	{
+		int access = rand();
+		sum += map_int[access];
+	}
+	std::cout << "should be constant with the same seed: " << sum << std::endl;
+
+	{
+		ft::map<int, int> copy = map_int;
+	}
+	MutantStack<char> iterable_stack;
+	for (char letter = 'a'; letter <= 'z'; letter++)
+		iterable_stack.push(letter);
+	for (MutantStack<char>::iterator it = iterable_stack.begin(); it != iterable_stack.end(); it++)
+	{
+		std::cout << *it;
+	}
+	std::cout << std::endl;
+}
+
+void stack_test() {
+	std::cout << "\nSTACK test\n";
+
 	ft::stack<int> st;
-	ft::stack<int> ste;
+	st.push(rand());
+	st.push(rand());
+	stack_print(st);
 
-	std::cout << (st == st) << "\n";
+	const ft::stack<int> st_copy(st);
+	stack_print(st_copy);
 
-	//insert_test_1(v);
-	ft::stack<int>	em;
-	//ft::stack<int>	st;
+	st.push(rand());
+	stack_print(st_copy);
 
-	em.push(8);
+	st = st_copy;
+	stack_print(st);
 
-	std::cout << em.top() << "\n";
-	std::cout << em.size() << "\n";
+	std::cout << st.top() << std::endl;
+	std::cout << st.empty() << std::endl;
+	std::cout << st.size() << std::endl;
+	std::cout << "Relational operators: " << (st == st_copy) << (st != st_copy)
+				<< (st < st_copy) << (st >= st_copy) << std::endl;
+	st.pop();
+	std::cout << st.top() << std::endl;
+	stack_print(st);
+}
 
-	st.push(8);
+void vector_test() {
+	std::cout << "\nVECTOR test\n";
 
-	std::cout << (st == em) << "\n";
-	std::cout << "\n";
+	ft::vector<int> v_empty;
+	ft::vector<int> v_fill(5, 80);
+	ft::vector<int> v_count(20);
+	for (int i = 0; i < 20; ++i)
+		v_count[i] = rand();
+	ft::vector<int> v_range(v_fill.begin(), v_fill.end());
+	const ft::vector<int> v_copy(v_count);
+	vector_print(v_fill);
+	vector_print(v_count);
+	vector_print(v_copy);
 
-	ft::vector<int>	v;
-	ft::vector<int>	vfill(8);
-	ft::vector<int>	vfillval(8, 15);// calls range constr but should call fill
+	ft::vector<int> v_iter(++(++v_copy.begin()), --(--v_copy.end()));
+	vector_print(v_iter);
 
-	//std::cout << "empty front: " << v.front() << "\n";
-	std::cout << "size: " << vfill.size() << "\n";
-	std::cout << "elem [1]: " << vfill[1] << "\n";
+	ft::vector<int> v(1);
+	v = v_iter;
+	vector_print(v);
 
-	ft::vector<int> iters(vfill.begin(), vfill.end());
+	std::allocator<int> alloc = v.get_allocator();
+	std::allocator<int> alloc1 = v_iter.get_allocator();
+	std::cout << (alloc == alloc1) << std::endl;
 
-	iters.insert(iters.begin(), 1);
+	int *data_ptr = v_count.data();
+	std::cout << data_ptr[0] << std::endl;
+	const int *data_ptr_const = v_copy.data();
+	std::cout << data_ptr_const[0] << std::endl;
 
-	v.reserve(100);
-	v.begin();
-	//std::cout << "elem [1]: " << vfillval[1] << "\n";
-	//std::cout << "front:  " << vfillval.front() << "\n";
-//	try {
-//		vfill.at(9);
-//	}
-///	catch ( std::out_of_range& oor ) {
-//		std::cerr << "Out of Range error: " << oor.what() << "\n";
-//	}
+	std::cout << v_copy.size() << std::endl;
+	std::cout << v_copy.capacity() << std::endl;
+	std::cout << v_iter.max_size() << std::endl;
+	std::cout << v.empty() << std::endl;
 
-	/*
-	std::vector<int>	stv(3, 8);
-	std::cout << "size: " << stv.size() << "\n";
-	std::cout << "elem [1]: " << stv[1] << "\n";
-	std::cout << stv.at(1) << "\n";
-	try {
-		stv.at(9);
+	std::cout << v.front() << std::endl;
+	std::cout << v_copy.front() << std::endl;
+	std::cout << v.back() << std::endl;
+	std::cout << v_copy.back() << std::endl;
+
+	std::cout << v[4] << std::endl;
+	std::cout << v_copy[4] << std::endl;
+	std::cout << v.at(5) << std::endl;
+	std::cout << v_copy.at(5) << std::endl;
+
+	v_iter.reserve(500);
+	vector_print(v_iter);
+	v_iter.clear();
+	vector_print(v_iter);
+	v_iter.push_back(rand());
+	vector_print(v_iter);
+	v_iter.pop_back();
+	vector_print(v_iter);
+	v_iter.resize(20);
+	vector_print(v_iter);
+	v_iter.resize(40, rand());
+	vector_print(v_iter);
+	
+	v.swap(v_iter);
+	vector_print(v_iter);
+	vector_print(v);
+
+	v.assign(42, rand());
+	vector_print(v);
+	v.assign(v_copy.begin(), v_copy.end());
+	vector_print(v);
+	v.insert(v.begin() + 5, rand());
+	vector_print(v);
+	v.insert(v.begin() + 4, 4, rand());
+	vector_print(v);
+	v.insert(v.begin() + 8, v_copy.begin() + 1, v_copy.begin() + 3);
+	vector_print(v);
+
+	ft::vector<int>::iterator it = v.erase(v.begin());
+	vector_print(v);
+	it = v.erase(v.end() - 2, v.end());
+	vector_print(v);
+}
+
+void map_test() {
+	std::cout << "\nMAP test\n";
+
+	ft::map<int, int> mp;
+	mp[21] = rand();
+	mp[42] = rand();
+	map_print(mp);
+
+	ft::map<int, int> map_iter(++mp.begin(), mp.end());
+	map_print(map_iter);
+
+	const ft::map<int, int> map_copy(mp);
+	map_print(map_copy);
+	mp = map_iter;
+	map_print(mp);
+
+	std::cout << map_copy.at(21) << std::endl;
+	std::cout << map_copy.empty() << std::endl;
+	mp.clear();
+	map_print(mp);
+
+	mp.insert(ft::make_pair(21, rand()));
+	map_print(mp);
+	mp.insert(mp.begin(), ft::make_pair(88, rand()));
+	map_print(mp);
+	map_iter.insert(mp.begin(), mp.end());
+	map_print(map_iter);
+
+	map_iter.erase(map_iter.begin());
+	map_print(map_iter);
+	map_iter.erase(++map_iter.begin(), map_iter.end());
+	map_print(map_iter);
+	map_iter.erase(map_iter.begin()->first);
+	map_print(map_iter);
+
+	map_iter.swap(mp);
+	map_print(map_iter);
+	map_print(mp);
+}
+
+void set_test() {
+	std::cout << "\nSET test\n";
+
+	ft::set<int> set_;
+
+	set_.insert(rand());
+	set_.insert(rand());
+	set_print(set_);
+
+	ft::set<int> set_iter(++set_.begin(), set_.end());
+	set_print(set_iter);
+
+	const ft::set<int> set_copy(set_);
+	set_print(set_copy);
+	set_ = set_iter;
+	set_print(set_);
+
+	std::cout << set_copy.empty() << std::endl;
+	set_.clear();
+	set_print(set_);
+
+	set_.insert(rand());
+	set_print(set_);
+	set_.insert(set_.begin(), rand());
+	set_print(set_);
+	set_iter.insert(set_.begin(), set_.end());
+	set_print(set_iter);
+
+	set_iter.erase(set_iter.begin());
+	set_print(set_iter);
+	set_iter.erase(++set_iter.begin(), set_iter.end());
+	set_print(set_iter);
+	set_iter.erase(*set_iter.begin());
+	set_print(set_iter);
+
+	set_iter.swap(set_);
+	set_print(set_iter);
+	set_print(set_);
+}
+
+int main(int argc, char** argv) {
+
+	if (argc != 2)
+	{
+		std::cerr << "Usage: ./test seed" << std::endl;
+		std::cerr << "Provide a seed please" << std::endl;
+		std::cerr << "Count value:" << COUNT << std::endl;
+		return 1;
 	}
-	catch ( std::out_of_range& oor ) {
-		std::cerr << "Out of Range error: " << oor.what() << "\n";
-	}
 
-	std::vector<int>	stvf;
-	std::vector<int>::const_iterator	stit;
-	std::vector<int>::const_iterator	stit1;
-	std::vector<int>::iterator			stiter;
+	std::cout << std::endl;
+	std::cout << "-------- " << NMSP << " --------" << std::endl;
+	const int seed = atoi(argv[1]);
+	srand(seed);
+	const clock_t begin_time = clock();
 
-	stvf.push_back(1);
-	stvf.push_back(7);
-	stvf.push_back(3);
-	stvf.push_back(5);
-	std::cout << stvf.front() << "\n";
-	std::cout << stvf.back() << "\n";
-	stit = stvf.begin();
-	//stiter = stit;
-	stit1 = stit;
-	stit1 += 2;
-	std::cout << "st it arithmetics " << *(1 + stit1)  << "\n";
-	std::cout << "st it arithmetics " << *(stit1 + 1)  << "\n";
-	std::cout << "st it arithmetics, distance " << stit1 - stit  << "\n";
-*/
-	/*
-	ft::vector<int>		toIter(3, 15);
-	//ft::vector<int>		toIter;
-	ft::vector<int>::const_iterator	cit;
-	ft::vector<int>::iterator		it;
+	subject_test();
+	stack_test();
+	vector_test();
+	map_test();
+	set_test();
 
 
-	toIter.push_back(2);
-	toIter.push_back(7);
-	toIter.push_back(5);
-	toIter.push_back(1);
-	toIter.push_back(8);
-
-	cit = toIter.begin();
-
-	std::cout << *cit << "\n";
-	std::cout << *(cit + 2) << "\n";
-	std::cout << *(cit + 4) << "\n";
-
-	cit += 3;
-	std::cout << "it arithmetics " << *(cit) << "\n";
-	std::cout << "it arithmetics " << *(cit + 1) << "\n";
-	std::cout << "it arithmetics " << *(1 + cit) << "\n";
-	std::cout << "it arithmetics, distance " << cit - (cit - 2)  << "\n";
-	unsigned int size = toIter.size();
-	for (unsigned int i = 0; i < size; i++)
-		std::cout << toIter[i] << " ";
-	std::cout << "\n";
-
-	it = toIter.begin() + 3;
-	std::cout << *it << "\n";
-	std::cout << it - toIter.begin() << "\n";
-	//toIter.erase(it);
-
-	//std::cout << *(toIter.begin() + 1)<< " begin\n";
-	it = toIter.begin() + 2;
-	toIter.insert(it, 2, 6);
-
-	size = toIter.size();
-	for (unsigned int i = 0; i < size; ++i)
-		std::cout << toIter[i] << " ";
-	std::cout << "\n";
-	std::cout << "\n";
-
-	ft::vector<int>::iterator	lil = toIter.begin();
-*/
-	//std::cout << <<;
-	/*
-	std::vector<int>	svc(3, 5);
-	std::vector<int>::const_iterator	sit = svc.begin();
-
-	std::cout << *sit << "\n";
-
-	ft::vector<int>		vc(3, 5);
-	ft::vector<int>::const_iterator	it = vc.begin();
-
-	std::cout << *it << "\n";
-	*/
-/*
-	std::cout << "\n";
-
-	std::list<int>		lst;
-
-	lst.push_back(2);
-	lst.push_back(4);
-	lst.push_back(7);
-
-	std::vector<int>		rr;
-
-	rr.push_back(2);
-	rr.push_back(4);
-	rr.push_back(7);
-	rr.push_back(8);
-	rr.push_back(1);
-
-
-	ft::vector<int>	r(rr.begin(), rr.end());
-	//ft::vector<int>	r(lst.begin(), lst.end());
-	std::cout << r[0] << "\n";
-
-	ft::vector<int>	rrr(2, 3);
-	
-	std::cout << "\n";
-
-	//rr.erase(rr.begin() + 2);
-	rr.erase(rr.begin() + 2, rr.end());
-	print_vector(rr);
-
-	rr.insert(rr.begin(), 11);
-	print_vector(rr);
-	//rr.assign(3, 2);
-	//rr.assign(rrr.begin(), rrr.end());
-	//print_vector(rr);
-
-	std::cout << "\n";
-
-*/
-	/*
-	ft::RBTree<int>	tree;
-
-	tree.insert(8);
-	tree.insert(3);
-	tree.insert(2);
-	tree.insert(1);
-	//tree.insert(-1);
-	tree.insert(4);
-	tree.insert(9);
-
-	tree.treePrint();
-	std::cout << "\n";
-
-	tree.insert(11);
-	//tree.insert(-9);
-	//tree.tree_insert(tree.getRoot(), 9);
-	std::cout << "\n";
-
-	tree.treePrint();
-	std::cout << "\n\n";
-	
-	tree.deleteValue(4); // wrong balance
-	// 2, 8 and 9 work ok
-	tree.treePrint();
-
-	//tree.rotateLeft(tree.getRoot());
-	//tree.treePrint();
-	
-	ft::pair<int, std::string>	pr(1, "hi");
-	ft::pair<int, std::string>	pr1(2, "hey");
-
-	ft::pair<int, std::string>	pr2;
-	pr2 = ft::make_pair(3, "hello");
-
-	std::cout << (pr >= pr1) << "\n";
-	std::cout << pr.first << ", " << pr.second << "\n";
-	std::cout << pr2.first << ", " << pr2.second << "\n";
-	*/
-
-//	bool	ig = true;
-
-//	if (ft::is_integral<ig>::value)
-//		std::cout << "it's bool it's integral\n";
-
-
-
-
-	ft::map<int, std::string> mp;
-	mp.insert(ft::make_pair(1, "hello"));
-	std::cout << mp.size() << "\n";
-	//ft::map<int,std::string>::iterator it = mp.begin();
-	std::cout << mp.begin()->first << ", " << mp.begin()->second << "\n";
-
-	ft::map<int, std::string> mp1(mp);
-	//ft::map<int, std::string> mp1(mp.begin(), mp.end());
-	
-
-
-	ft::set<int> setik;
-
-	setik.size();
-
-	setik.find(1);
-
-	//std::vector<int> v;
-	ft::map<int,int> mpt;
-
-    for (int i = 0, j = 10; i < 30; ++i, ++j) {
-        mpt.insert(ft::make_pair(i, j));
-    }
-	//ft::map<int, int> mp2(mp.begin(), mp.end());
-	//ft::map<int, int>::iterator it = mp2.begin();
-    //for (int i = 0; i < 5; ++i, it++) {
-    //    v.push_back(it->first);
-    //    v.push_back(it->second);
-    //}
-
-	std::cout << (mp < mp) << "\n";
-	mp.equal_range(1);
-	//mp.value_compare(1, 2);
-	mp.insert(mp.begin(), ft::make_pair(2, "Hi"));
-
-	ft::map<int,std::string>::iterator itik = --mp.end();
-	//int bbb = --mp.end()->first;
-	std::cout << itik->first << " --END\n";
-	
-	mp.erase(mp.begin(), --mp.end());
-
-	mp.erase(mp.begin(), mp.end());
-	mp.erase(1);
-
-	return 0;
+	std::cout << float(clock() - begin_time) / CLOCKS_PER_SEC << " s" << std::endl;
+	return (0);
 }

@@ -5,19 +5,24 @@
 # include "type_traits.hpp"
 # include "iterator_traits.hpp"
 
+typedef bool _rb_tree_color_type;
+const _rb_tree_color_type _tree_red = false;
+const _rb_tree_color_type _tree_black = true;
+
 template < class Data >
 	struct Node {
 		public:
-	
-		Data	*data;
-		Node	*parent;
-		Node	*left;
-		Node	*right;
-		bool	is_black;
-		bool	is_nil;
+		typedef _rb_tree_color_type color_type;
+
+		Data		*data;
+		Node		*parent;
+		Node		*left;
+		Node		*right;
+		color_type	color;
+		bool		is_nil;
 
 		explicit Node( Data *d = 0 ) : data(d), parent(0), left(0), right(0),
-										is_black(false), is_nil(false) {}
+										color(false), is_nil(false) {}
 
 		Node( const Node& ref ) { *this = ref; }
 
@@ -30,7 +35,7 @@ template < class Data >
 			parent = other.parent;
 			left = other.left;
 			right = other.right;
-			is_black = other.is_black;
+			color = other.color;
 			is_nil = other.is_nil;
 			return *this;
 		}

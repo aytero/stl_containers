@@ -23,8 +23,6 @@ class RBTree {
 		typedef typename Allocator::const_reference		const_reference;
 		typedef std::size_t								size_type;
 		typedef std::ptrdiff_t							difference_type;
-		//typedef ft::iterator_traits<iterator>
-		//				::difference_type				diference_type;
 		typedef typename Allocator::pointer				pointer;
 		typedef typename Allocator::const_pointer		const_pointer;
 
@@ -44,19 +42,18 @@ class RBTree {
 		size_type		size_;
 
 	public:
-		//enum color_t { RED, BLACK };
 
 		// Constructors
 		RBTree() : root_(0), val_alloc_(Allocator()),
 					node_alloc_(node_allocator()), compare_(Compare()), size_(0) {
-			init_nil_head();
-			root_ = head_;// not null
+			init();
+			root_ = head_;
 		}
 
 		RBTree( const Compare& comp, const Allocator& alloc = Allocator()) 
 						: val_alloc_(alloc), node_alloc_(node_allocator()), compare_(comp),
 						root_(0), size_(0) {
-			init_nil_head();
+			init();
 			root_ = head_;
 		}
 
@@ -65,7 +62,7 @@ class RBTree {
 					InputIt last, const Compare& comp, const Allocator& alloc = Allocator() )
 					: val_alloc_(alloc), node_alloc_(node_allocator()), compare_(comp) {
 				size_ = 0;
-				init_nil_head();
+				init();
 				root_ = head_;
 				for (; first != last; ++first)
 					insert(*first);
@@ -75,41 +72,6 @@ class RBTree {
 			*this = ref;
 		}
 
-		//////
-	nodePtr copy_node( nodePtr other ){
-		nodePtr new_node = node_alloc_.allocate(1);
-		node_alloc_.construct(new_node,Node<Data>());
-		new_node->is_black = other->is_black;
-		new_node->is_nil = other->is_nil;
-		if (other->data) {
-			new_node->data = val_alloc_.allocate(1);
-			val_alloc_.construct(new_node->data,*other->data);
-		}
-		return new_node;
-	}
-
-	void copy_child_node( nodePtr node, nodePtr other ){
-		if (other->left->is_nil)
-			node->left = nil_;
-		else {
-			node->left = copy_node(other->left);
-			node->left->parent = node;
-			copy_child_node(node->left, other->left);
-		}
-
-		if (other->right->is_nil)
-			node->right = nil_;
-		else if (other->right->right == 0) {
-			node->right = head_;
-			head_->parent = node;
-		} else {
-			node->right = copy_node(other->right);
-			node->right->parent = node;
-			copy_child_node(node->right, other->right);
-		}
-	}
-	///////////////
-
 		RBTree& operator=( const RBTree &other ) {
 			if (this == &other)
 				return *this;
@@ -117,18 +79,12 @@ class RBTree {
 			node_alloc_ = other.node_alloc_;
 			compare_ = other.compare_;
 			
-			//root_ == 0 ? init_nil_head() : free_node(root_);
-			if (root_ == 0)
-				init_nil_head();
-			else
-				free_node(root_);
-
+			root_ == 0 ? init() : free_node(root_);
 			if (other.size_ == 0)
 				root_ = head_;
 			else {
-				//std::cout << "ELSE\n";
 				root_ = copy_node(other.root_);
-				copy_child_node(root_, other.root_);
+				copy_tree(root_, other.root_);
 			}
 			size_ = other.size_;
 			return *this;
@@ -136,7 +92,6 @@ class RBTree {
 
 		~RBTree() {
 			free_node(root_);
-
 			val_alloc_.destroy(head_->data);
 			val_alloc_.deallocate(head_->data, 1);
 			node_alloc_.deallocate(nil_, 1);
@@ -144,14 +99,11 @@ class RBTree {
 		}
 
 		iterator begin() {
-			//return iterator(tree_min(root_));//or head_
-			//return iterator(*this, tree_min(root_));
 			return iterator(size_ == 0 ? head_ : iterator(tree_min(root_)));
 		}
 
 		const_iterator begin() const {
 			return const_iterator(size_ == 0 ? head_ : const_iterator(tree_min(root_)));
-			//return (const_iterator(_size == 0 ? _header : const_iterator(tree_min(_root))));
 		}
 
 		iterator end() {
@@ -159,7 +111,7 @@ class RBTree {
 		}
 
 		const_iterator end() const {
-			return const_iterator(head_);// or *this
+			return const_iterator(head_);
 		}
 		
 		reverse_iterator rbegin() {
@@ -178,96 +130,17 @@ class RBTree {
 			return const_reverse_iterator(begin());
 		}
 
-		// TODO
-		pointer	create_value( const value_type &value ) {
-			pointer new_val = val_alloc_.allocate(1);
-			val_alloc_.construct(new_val, value);
-			return new_val;
-		}
-
-		//////////
-		nodePtr _create_node( const value_type& val ) {
-			nodePtr new_node = node_alloc_.allocate(1);
-			//new (new_node) Node<value_type>(create_value(val));
-			node_alloc_.construct(new_node, Node<value_type>(create_value(val)));
-			new_node->left = nil_;
-			new_node->right = nil_;
-			return new_node;
-		}
-
-		void _set_tree_max() {
-			nodePtr new_tree_max = tree_max(root_);
-			new_tree_max->right = head_;
-			head_->parent = new_tree_max;
-		}
-
-		/// TODO
-		nodePtr insert_to_node( nodePtr root, nodePtr new_node ) {
-			if (compare_(*new_node->data, *root->data)) {
-				if (!is_nil(root->left))
-					return insert_to_node(root->left, new_node);
-				root->left = new_node;
-			}
-			else {
-				if (!is_nil(root->right))
-					return insert_to_node(root->right, new_node);
-				root->right = new_node;
-			}
-			new_node->parent = root;
-			return (new_node);
-		}
-		
-		nodePtr insert_into_tree(nodePtr new_node, nodePtr where){
-			if (root_ == head_)
-				root_ = new_node;
-			else
-				insert_to_node(where, new_node);
-			return (new_node);
-		}
-
-
-		/////////////
-
-		void rb_insert( nodePtr z ) {
-			nodePtr y = nil_;
-			nodePtr x = root_;
-			//while (x != nil_) {
-			while (!is_nil(x)) {
-				y = x;
-				if (compare_(*z->data, *x->data)) {
-				//if (z.key < x.key) {
-					x = x->left;
-				} else {
-					x = x->right;
-				}
-			}
-			z->parent = y;
-			if (is_nil(y)) {
-				root_ = z;
-			} else if (compare_(*z->data, *y->data)) {
-			//} else if (z.key < y.key) {
-				y->left = z;
-			} else {
-				y->right = z;
-			}
-			z->left = nil_;
-			z->right = nil_;
-			z->is_black = false;// RED
-
-			//rb_insert_fixup(z);
-		}
-
 		ft::pair<iterator,bool> insert( const value_type &val ){
 			nodePtr new_node = findVal(root_, val);
 			if (new_node)
 				return ft::pair<iterator,bool>(iterator(new_node), false);
 
-			new_node = _create_node(val);
+			new_node = create_node(val);
 			insert_into_tree(new_node, root_);
 			//rb_insert(new_node);
 			rb_insert_fixup(new_node);
 			++size_;
-			_set_tree_max();
+			set_tree_max();
 			return ft::pair<iterator,bool>(iterator(new_node), true);
 		}
 	
@@ -277,8 +150,7 @@ class RBTree {
 			if (new_node)
 				return iterator(new_node);
 
-			new_node = _create_node(val);
-			//insert with hint;
+			new_node = create_node(val);
 			if (position == begin()) {
 				if (position != end() && compare_(val, *position))
 					insert_into_tree(new_node, tree_min(root_));
@@ -294,7 +166,7 @@ class RBTree {
 
 			rb_insert_fixup(new_node);
 			++size_;
-			_set_tree_max();
+			set_tree_max();
 			return iterator(new_node);
 		}
 
@@ -325,12 +197,11 @@ class RBTree {
 			return val_alloc_;
 		}
 
-
 		void erase( iterator position ) {
 			nodePtr n = position.getNode();
 			nodePtr to_free = n;
 			nodePtr x;
-			bool n_orig_is_black = n->is_black;
+			bool n_orig_color = n->color;
 
 			if (is_nil(n->left)) {
 				x = n->right;
@@ -341,35 +212,25 @@ class RBTree {
 			} else {
 				nodePtr z = n;
 				n = tree_min(z->right);
-				n_orig_is_black = n->is_black;
+				n_orig_color = n->color;
 				x = n->right;
-
 				if (n->parent != z) {
 					rb_transplant(n, n->right);
 					n->right = z->right;
 					z->right->parent = n;
 				}
-				/*
-				if (n->parent == z)
-					x->parent = n;
-				else {
-					rb_transplant(n, n->right);
-					n->right = z->right;
-					z->right->parent = n;
-				}*/
 				rb_transplant(z, n);
 				n->left = z->left;
 				n->left->parent = n;
-				n->is_black = z->is_black;
+				n->color = z->color;
 			}
 
-			//erase_node(to_free);
 			val_alloc_.destroy(to_free->data);
 			val_alloc_.deallocate(to_free->data, 1);
 			node_alloc_.deallocate(to_free, 1);
 
-			if (n_orig_is_black == true)// BLACK
-				rb_delete_fixup(x);
+			if (n_orig_color == _tree_black)
+				rb_erase_fixup(x);
 
 			--size_;
 			nil_->parent = 0;
@@ -397,8 +258,12 @@ class RBTree {
 			//void erase( typename ft::enable_if<!ft::is_integral<InputIterator>::value,
 			//				InputIterator>::type first, InputIterator last ) {
 			void erase( iterator first, iterator last ) {
-				while (first != last)
-					erase(first++);
+				if (first == begin() && last == end())
+					clear();
+				else {
+					while (first != last)
+						erase(first++);
+				}
 			}
 
 		void clear() {
@@ -479,16 +344,16 @@ class RBTree {
 		}
 
 	private:
-		void init_nil_head() {
+		void init() {
 			nil_ = node_alloc_.allocate(1);
 			node_alloc_.construct(nil_, Node<Data>());
-			nil_->is_black = true;
+			nil_->color = _tree_black;
 			nil_->is_nil = true;
 			head_ = node_alloc_.allocate(1);
 			node_alloc_.construct(head_, Node<Data>());
 			head_->data = val_alloc_.allocate(1);
 			val_alloc_.construct(head_->data, Data());
-			head_->is_black = true;
+			head_->color = _tree_black;
 		}
 
 		/*
@@ -537,7 +402,7 @@ class RBTree {
 			printHelper(root->right, lvl + 1);
 			for (int i = 0; i < lvl * 4; i++)
 				std::cout << " ";
-			std::cout << root->data << (root->is_black == false ? "r" : "b") << std::endl;
+			std::cout << root->data << (root->color == false ? "r" : "b") << std::endl;
 			printHelper(root->left, lvl + 1);
 		}
 
@@ -609,45 +474,143 @@ class RBTree {
 			return node == nil_ || node == head_;
 		}
 
+		nodePtr create_node( const value_type& val ) {
+			nodePtr new_node = node_alloc_.allocate(1);
+			pointer new_val = val_alloc_.allocate(1);
+			val_alloc_.construct(new_val, val);
+			//new (new_node) Node<value_type>(new_val);
+			node_alloc_.construct(new_node, Node<value_type>(new_val));
+			new_node->left = nil_;
+			new_node->right = nil_;
+			return new_node;
+		}
+
+		nodePtr copy_node( nodePtr other ) {
+			nodePtr new_node = node_alloc_.allocate(1);
+			node_alloc_.construct(new_node, Node<Data>());
+			new_node->color = other->color;
+			new_node->is_nil = other->is_nil;
+			if (other->data) {
+				new_node->data = val_alloc_.allocate(1);
+				val_alloc_.construct(new_node->data, *other->data);
+			}
+			return new_node;
+		}
+
+		void copy_tree( nodePtr node, nodePtr other ) {
+			if (other->left->is_nil)
+				node->left = nil_;
+			else {
+				node->left = copy_node(other->left);
+				node->left->parent = node;
+				copy_tree(node->left, other->left);
+			}
+
+			if (other->right->is_nil)
+				node->right = nil_;
+			else if (other->right->right == 0) {
+				node->right = head_;
+				head_->parent = node;
+			} else {
+				node->right = copy_node(other->right);
+				node->right->parent = node;
+				copy_tree(node->right, other->right);
+			}
+		}
+
+		void set_tree_max() {
+			nodePtr new_tree_max = tree_max(root_);
+			new_tree_max->right = head_;
+			head_->parent = new_tree_max;
+		}
+
+		nodePtr insert_to_node( nodePtr root, nodePtr new_node ) {
+			if (compare_(*new_node->data, *root->data)) {
+				if (!is_nil(root->left))
+					return insert_to_node(root->left, new_node);
+				root->left = new_node;
+			} else {
+				if (!is_nil(root->right)) {
+					return insert_to_node(root->right, new_node);
+				}
+				root->right = new_node;
+			}
+			new_node->parent = root;
+			return (new_node);
+		}
+		
+		nodePtr insert_into_tree(nodePtr new_node, nodePtr where){
+			if (root_ == head_)
+				root_ = new_node;
+			else
+				insert_to_node(where, new_node);
+			return (new_node);
+		}
+
+		void rb_insert( nodePtr new_node ) {
+			nodePtr y = nil_;
+			nodePtr x = root_;
+			//while (!is_nil(x)) {
+			while (x != nil_) {
+				y = x;
+				if (compare_(*new_node->data, *x->data)) {// new_node.key < x.key
+					x = x->left;
+				} else {
+					x = x->right;
+				}
+			}
+			new_node->parent = y;
+			if (is_nil(y)) {
+				root_ = new_node;
+			} else if (compare_(*new_node->data, *y->data)) {// new_node.key < y.key
+				y->left = new_node;
+			} else {
+				y->right = new_node;
+			}
+			new_node->left = nil_;
+			new_node->right = nil_;
+			new_node->color = _tree_red;
+		}
+
 		void rb_insert_fixup( nodePtr node ) {
 			if (node != root_ && node->parent != root_) {
-				while (node != root_ && node->parent->is_black == false) {// RED
+				while (node != root_ && node->parent->color == _tree_red) {
 					if (node->parent == node->parent->parent->left) {
 						nodePtr	y = node->parent->parent->right;// uncle node
-						if (y->is_black == false) {// RED
-							node->parent->is_black = true;// BLACK
-							y->is_black = true;// BLACK
-							node->parent->parent->is_black = false;// RED
+						if (y->color == _tree_red) {
+							node->parent->color = _tree_black;
+							y->color = _tree_black;
+							node->parent->parent->color = _tree_red;
 							node = node->parent->parent;
 						} else {
 							if (node == node->parent->right) {
 								node = node->parent;
 								rotateLeft(node);
 							}
-							node->parent->is_black = true;// BLACK
-							node->parent->parent->is_black = false;// RED
+							node->parent->color = _tree_black;
+							node->parent->parent->color = _tree_red;
 							rotateRight(node->parent->parent);
 						}
 					} else {
 						nodePtr y = node->parent->parent->left;
-						if (y->is_black == false) {// RED
-							node->parent->is_black = true;// BLACK
-							y->is_black = true;// BLACK
-							node->parent->parent->is_black = false;// RED
+						if (y->color == _tree_red) {
+							node->parent->color = _tree_black;
+							y->color = _tree_black;
+							node->parent->parent->color = _tree_red;
 							node = node->parent->parent;
 						} else {
 							if (node == node->parent->left) {
 								node = node->parent;
 								rotateRight(node);
 							}
-							node->parent->is_black = true;// BLACK
-							node->parent->parent->is_black = false;// RED
+							node->parent->color = _tree_black;
+							node->parent->parent->color = _tree_red;
 							rotateLeft(node->parent->parent);
 						}
 					}
 				}
 			}
-			root_->is_black = true;// BLACK
+			root_->color = _tree_black;
 		}
 
 		void rb_transplant( nodePtr u, nodePtr v ) {
@@ -660,55 +623,55 @@ class RBTree {
 			v->parent = u->parent;
 		}
 
-		void rb_delete_fixup( nodePtr x ) {
+		void rb_erase_fixup( nodePtr x ) {
 			nodePtr w = nil_;// brother
 
-			while (x != root_ && x->is_black == true) {// BLACK
+			while (x != root_ && x->color == _tree_black) {
 				if (x == x->parent->left) {
 					w = x->parent->right;
-					if (w->is_black == false) {// RED
-						w->is_black = true;// BLACK
-						x->parent->is_black = false;// RED
+					if (w->color == _tree_red) {
+						w->color = _tree_black;
+						x->parent->color = _tree_red;
 						rotateLeft(x->parent);
 						w = x->parent->right;
 					}
-					if (w->left->is_black == true && w->right->is_black == true) {// BLACK && BLACK
-						w->is_black = false;// RED
+					if (w->left->color == _tree_black && w->right->color == _tree_black) {
+						w->color = _tree_red;
 						x = x->parent;
 					} else {
-						if (w->right->is_black == true) {// BLACK
-							w->left->is_black = true;// BLACK
-							w->is_black = false;// RED
+						if (w->right->color == _tree_black) {
+							w->left->color = _tree_black;
+							w->color = _tree_red;
 							rotateRight(w);
 							w = x->parent->right;
 						}
-						w->is_black = x->parent->is_black;
-						x->parent->is_black = true;// BLACK
-						w->right->is_black = true;// BLACK
+						w->color = x->parent->color;
+						x->parent->color = _tree_black;
+						w->right->color = _tree_black;
 						rotateLeft(x->parent);
 						x = root_;
 					}
 				} else {
 					w = x->parent->left;
-					if (w->is_black == false) {// RED
-						w->is_black = true;// BLACK
-						x->parent->is_black = false;// RED
+					if (w->color == _tree_red) {
+						w->color = _tree_black;
+						x->parent->color = _tree_red;
 						rotateRight(x->parent);
 						w = x->parent->left;
 					}
-					if (w->right->is_black == true && w->left->is_black == true) {// BLACK && BLACK
-						w->is_black = false;// RED
+					if (w->right->color == _tree_black && w->left->color == _tree_black) {
+						w->color = _tree_red;
 						x = x->parent;
 					} else {
-						if (w->left->is_black == true) {// BLACK
-							w->right->is_black = true;// BLACK
-							w->is_black = false;// RED
+						if (w->left->color == _tree_black) {
+							w->right->color = _tree_black;
+							w->color = _tree_red;
 							rotateLeft(w);
 							w = x->parent->left;
 						}
-						w->is_black = x->parent->is_black;
-						x->parent->is_black = true;// BLACK
-						w->left->is_black = true;// BLACK
+						w->color = x->parent->color;
+						x->parent->color = _tree_black;
+						w->left->color = _tree_black;
 						rotateRight(x->parent);
 						x = root_;
 					}

@@ -19,6 +19,9 @@ all: $(NAME)
 $(NAME): $(OBJS)
 	$(CPPC) $(FLAGS) $(OBJS) -o $(NAME) -I$(HEADERS)
 
+#st: $(OBJS)
+#	$(CPPC) $(FLAGS) -D ST $(OBJS) -o $(NAME) -I$(HEADERS)
+
 l:
 	leaks -atExit -- ./$(NAME)
 

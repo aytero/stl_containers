@@ -10,25 +10,10 @@
 # include "iterator_traits.hpp"
 # include "utility.hpp"
 
-
-// 12 operators in iters for ex const_iter - iter; iter + const_iter
-// nil node left and right to min max
-// std::distance not with all iterator types: make overloads
-// allocator and memory; vector throws exceptions, catches, deletes not finished adding and throws again
-// lower and  upper bound map and set into tree problem 
-//
-// tree copy and assign 
-//
-// vector operator -> with objects with overloaded & (addressof)
-//
-// map iterator -- when end() ? can use nil_->left/right or wierdly keep root in a node
-
-namespace ft
-{
+namespace ft {
 
 template < class T, class Alloc = std::allocator<T> >
 class vector {
-
 	public:
 		typedef T								value_type;
 		typedef Alloc							allocator_type;
@@ -37,14 +22,7 @@ class vector {
 		typedef typename Alloc::pointer			pointer;
 		typedef typename Alloc::const_pointer	const_pointer;
 		typedef typename std::ptrdiff_t	difference_type;
-		//typedef typename Alloc::difference_type	difference_type;
 		typedef std::size_t							size_type;
-		//typedef pointer							iterator_type;
-		//typedef iterator;
-		//typedef ft::vector::const_iterator	const_iterator;
-		//typedef reverse_iterator;
-		//typedef const_reverse_iterator;
-		//typedef unsigned long		size_type;
 
 	private:
 		allocator_type	alloc_;
@@ -56,14 +34,10 @@ class vector {
 		class const_iterator {
 			public:
 				typedef typename Alloc::value_type		value_type;
-				typedef typename Alloc::pointer			pointer;// const_pointer
-				//typedef typename Alloc::const_pointer	pointer;// const_pointer
+				typedef typename Alloc::pointer			pointer;
 				typedef typename Alloc::const_reference	reference;
-				//typedef typename Alloc::const_reference	const_reference;
 				typedef typename Alloc::difference_type	difference_type;
 				typedef std::random_access_iterator_tag	iterator_category;
-				
-
 				typedef pointer							iterator_type;
 
 				const_iterator( pointer ptr = NULL ) : ptr_(ptr) {}
@@ -86,15 +60,6 @@ class vector {
 				bool	operator>( const const_iterator &rhs ) { return ptr_ > rhs.ptr_; }
 				bool	operator>=( const const_iterator &rhs ) { return ptr_ >= rhs.ptr_; }
 
-				/*
-		const_iterator &operator+=(size_type n) { _ptr += n; return *this; }
-		const_iterator operator+(size_type n) const { return const_iterator(_ptr + n); }
-		friend const_iterator operator+(size_type n, const const_iterator &other) { return const_iterator(other._ptr + n); }
-
-		const_iterator &operator-=(size_type n) { _ptr -= n; return *this; }
-		const_iterator operator-(size_type n) const { return iterator(_ptr - n); }
-		difference_type operator-(const_iterator const &other) const { return _ptr - other._ptr; }
-				*/
 				const_iterator& operator++() { ++ptr_; return *this; }
 				const_iterator operator++( int ) { const_iterator tmp(*this); ++ptr_; return tmp; }
 				const_iterator& operator--() { --ptr_; return *this; }
@@ -106,12 +71,9 @@ class vector {
 
 				difference_type operator-( const const_iterator &other ) const { return ptr_ - other.ptr_; }
 				const_iterator operator-( const size_type n ) const { return const_iterator(ptr_ - n); }
-				//friend const_iterator operator-( size_type n, const const_iterator &c ) { return const_iterator(c.ptr_ - n); }
 				const_iterator& operator-=( size_type n ) { ptr_ -= n; return *this; }
 
-			//private:
 			protected:
-				//pointer	ptr_;
 				T*	ptr_;
 		};
 
@@ -122,16 +84,9 @@ class vector {
 				typedef typename Alloc::reference		reference;
 				typedef typename Alloc::difference_type	difference_type;
 				typedef std::random_access_iterator_tag	iterator_category;
-
 				typedef pointer							iterator_type;
 
-
-		//iterator(T *ptr = NULL) : cit(ptr) {}
-				iterator( pointer ptr = NULL ) : const_iterator(ptr) {
-					//ptr_ = ptr;
-					//ptr_ = const_iterator::ptr_;
-					//std::cout << iterator::ptr_ << " lils ptr   " << const_iterator::ptr_ << "\n";
-				}
+				iterator( pointer ptr = NULL ) : const_iterator(ptr) {}
 				iterator( const iterator &ref ) : const_iterator(ref) { const_iterator::ptr_ = ref.ptr_; }
 				virtual ~iterator() {}
 
@@ -143,15 +98,6 @@ class vector {
 				reference operator*() { return *const_iterator::ptr_; }
 				pointer operator->() { return const_iterator::ptr_; }
 				reference operator[]( size_type n ) { return const_iterator::ptr_ + n; }
-
-				//bool	operator==( const iterator &rhs ) { return ptr_ == rhs.ptr_; }
-				//bool	operator!=( const iterator &rhs ) { return ptr_ != rhs.ptr_; }
-				//bool	operator<( const iterator &rhs ) { return ptr_ < rhs.ptr_; }
-				//bool	operator<=( const iterator &rhs ) { return ptr_ <= rhs.ptr_; }
-				//bool	operator>( const iterator &rhs ) { return ptr_ > rhs.ptr_; }
-				//bool	operator>=( const iterator &rhs ) { return ptr_ >= rhs.ptr_; }
-
-				//iterator &operator=(const iterator &other) { cit::operator=(other); return *this; }
 
 				iterator &operator++() { const_iterator::operator++(); return *this; }
 				iterator operator++( int ) { iterator tmp(*this); const_iterator::operator++(0); return tmp; }
@@ -166,29 +112,6 @@ class vector {
 				iterator &operator-=( difference_type n ) { const_iterator::operator-=(n); return *this; }
 				iterator operator-( difference_type n ) const { return iterator(const_iterator::ptr_ - n); }
 				difference_type operator-( const_iterator const &other ) const { return const_iterator::operator-(other); }
-				/*
-				iterator& operator++() { ++ptr_; return *this; }
-				iterator operator++( int ) { iterator tmp(*this); ++ptr_; return tmp; }
-				iterator& operator--() { --ptr_; return *this; }
-				iterator operator--( int ) { iterator tmp(*this); --ptr_; return tmp; }
-				const iterator operator+( size_type n ) const { return iterator(ptr_ + n); }
-				friend iterator operator+( size_type n, const iterator &c )
-					{ return iterator(c.ptr_ + n); }
-				iterator& operator+=( size_type n ){ ptr_ += n; return *this; }
-				difference_type operator-( const iterator &other )
-					{ return ptr_ - other.ptr_; }
-				const iterator operator-( const size_type n ) const
-					{ return iterator(const_iterator::ptr_ - n); }
-				friend iterator operator-( size_type n, const iterator &c )
-					{ return iterator(c.const_iterator::ptr_ - n); }
-				const iterator& operator-=( size_type n ) const
-					{ const_iterator::ptr_ -= n; return *this; }
-
-*/
-			//private:
-			//protected:
-				// isnt it inhereted ? custom type prob
-				//pointer	ptr_;
 		};
 	
 		
@@ -233,9 +156,6 @@ class vector {
 		}
 
 		vector&	operator=( const vector &other ) {
-			//vector tmp(other);
-			//swap(tmp);
-			//return *this;
 			if (this == &other)
 				return *this;
 			clear();
@@ -251,7 +171,6 @@ class vector {
 			alloc_ = other.alloc_;
 			return *this;
 		}
-
 
 		iterator		begin() { return iterator(arr_); }
 		const_iterator	begin() const { return const_iterator(arr_); }
@@ -271,8 +190,7 @@ class vector {
 		pointer			data() { return arr_; }
 		const_pointer	data() const { return arr_; }
 
-		
-		void	reserve( size_type n ) {
+		void reserve( size_type n ) {
 			if (n < capacity_)
 				return ;
 
@@ -293,13 +211,11 @@ class vector {
 				alloc_.destroy(arr_ + i);
 			if (capacity_)
 				alloc_.deallocate(arr_, capacity_);
-			//if (arr_)
-			//	alloc_.deallocate(arr_, capacity_);
 			arr_ = new_arr;
 			capacity_ = n;
 		}
 
-		void	resize( size_type n, value_type val = value_type() ) {
+		void resize( size_type n, value_type val = value_type() ) {
 			if (n < size_) {
 				for (size_type i = n; i < size_; ++i)
 					alloc_.destroy(arr_ + i);
@@ -317,13 +233,13 @@ class vector {
 		reference		operator[] ( size_type n ) { return *(arr_ + n); }// arr[n]
 		const_reference	operator[] ( size_type n ) const { return arr_[n]; }
 		
-		reference		at( size_type n ) {
+		reference at( size_type n ) {
 			if (n >= size_ || n < 0)
 				throw ( std::out_of_range("vector") );
 			return (arr_[n]);
 		}
 
-		const_reference	at( size_type n ) const {
+		const_reference at( size_type n ) const {
 			if (n >= size_ || n < 0)
 				throw ( std::out_of_range("vector") );
 			return (arr_[n]);
@@ -334,26 +250,20 @@ class vector {
 		reference		back() { return arr_[size_ - 1]; }
 		const_reference	back() const { return arr_[size_ - 1]; }
 
-
 		template < class InputIt >
 			void assign(InputIt first,
 					typename enable_if<!is_integral<InputIt>::value, InputIt>::type last) {
 				if (first > last)
 					throw std::logic_error("vector");
 				clear();
-				
 				size_type new_size = static_cast<size_type>(last - first);
-
 				if (new_size > capacity_) {
 					if (capacity_)
 						alloc_.deallocate(arr_, capacity_);
 					arr_ = alloc_.allocate(new_size);
 					capacity_ = new_size;
 				}
-
-
 				size_ = new_size;
-	
 				size_type i = 0;
 				while (first != last) {
 					alloc_.construct(arr_ + i, *first);
@@ -390,52 +300,10 @@ class vector {
 		}
 
 		iterator insert( iterator position, const value_type& val ) {
-
 			if (position < begin() || position > end())
 				throw std::logic_error("vector");
-
-			//size_type idx = std::distance(begin(), position);
 			difference_type	idx = position - begin();
-			/*
-			
-			if (size_ == capacity_) {
-				//reserve(capacity_ * 2 + (capacity_ == 0));// or resize
-				capacity_ = capacity_ * 2 + (capacity_ == 0);
-
-				pointer n = alloc_.allocate(capacity_);
-				
-				//for (size_type i = 0; i < size_; ++i)
-				size_type i = -1;
-				while (++i < static_cast<size_type>(idx))
-					alloc_.construct(n + i, *(arr_ + i));
-
-				alloc_.construct(n + idx, val);
-
-				while (++i < size_)
-					alloc_.construct(n + i, *(arr_ + i - 1));
-				i = -1;
-				while (++i < size_)
-					alloc_.destroy(arr_ + i);
-				if (size_)
-					alloc_.deallocate(arr_, size_);
-
-				arr_ = n;
-
-			} else {
-				for (size_type i = size_; i > static_cast<size_type>(idx); --i) {
-					alloc_.destroy(arr_ + i);
-					alloc_.construct(arr_ + i, *(arr_ + i - 1));
-				}
-				alloc_.destroy(arr_ + idx);
-				alloc_.construct(arr_ + idx, val);
-			}
-
-*/
-			//++size_;
-			//arr_[idx] = val;
-
-			//return begin() + idx;
-			insert(position, 1, val);/////////
+			insert(position, 1, val);
 			return iterator(arr_ + idx);
 
 		}
@@ -446,22 +314,24 @@ class vector {
 			if (max_size() - size_ < n)
 				throw std::length_error("vector");
 			
-			/////
-			difference_type	idx = position - begin();
-			
+			size_type idx = static_cast<size_type>(position - begin());
+			//difference_type idx = position - begin();
 			if (size_ + n > capacity_) {
 				size_type new_cap = capacity_ * 2 >= size_ + n ? capacity_ * 2 : size_ + n;
 
 				pointer new_arr = alloc_.allocate(new_cap);
 
-				for (size_type i = 0; i < static_cast<size_type>(idx); ++i)
+				for (size_type i = 0; i < idx; ++i)
 					alloc_.construct(new_arr + i, *(arr_ + i));
-
 				for (size_type i = 0; i < n; ++i)
 					alloc_.construct(new_arr + idx + i, val);
-
-				for (size_type i = idx; i < size_; ++i)
-					alloc_.construct(new_arr + n + i, *(arr_ + i - 1));
+				if (n == 1) {
+					for (size_type i = idx; i < size_; ++i)
+						alloc_.construct(new_arr + n + i, *(arr_ + i));
+				} else {
+					for (size_type i = idx; i < size_; ++i)
+						alloc_.construct(new_arr + n + i, *(arr_ + i - 1));
+				}
 
 				size_type i = -1;
 				while (++i < size_)
@@ -473,7 +343,7 @@ class vector {
 				arr_ = new_arr;
 
 			} else {
-				for (size_type i = size_; i > static_cast<size_type>(idx); --i) {
+				for (size_type i = size_; i > idx; --i) {
 					alloc_.destroy(arr_ + i + n - 1);
 					alloc_.construct(arr_ + i + n - 1, *(arr_ + i - 1));
 				}
@@ -482,15 +352,9 @@ class vector {
 					alloc_.construct(arr_ + idx + i, val);
 				}
 			}
-
 			size_ += n;
 		}
 
-		/*
-			size_type start = static_cast<size_type>(position - begin());
-			size_type count = static_cast<size_type>(last - first);
-			}
-		   */
 		template < class InputIterator >
 		void insert( iterator position, InputIterator first,
 				typename enable_if<!is_integral<InputIterator>::value, InputIterator>::type last) {
@@ -502,36 +366,28 @@ class vector {
 			//size_type idx = static_cast<size_type>(position - begin());
 			//size_type count = static_cast<size_type>(last - first);
 
-			//if (!count)
-			//	return ;
 			if (size_ + count > capacity_) {
-				//reserve(capacity_ * 2 >= size_ + count ? capacity_ * 2 : size_ + count);
 				size_type new_cap = capacity_ * 2 >= size_ + count ? capacity_ * 2 : size_ + count;
 				pointer new_arr = alloc_.allocate(new_cap);
 
-				//std::uninitialized_copy(begin(), position, iterator(new_arr));
 				for (size_type i = 0; i < idx; ++i)
 					alloc_.construct(new_arr + i, *(arr_ + i));
 
 				try {
-					for (size_type i = 0; i < static_cast<size_type>(count); i++, first++)
+					for (size_type i = 0; i < static_cast<size_type>(count); ++i, ++first)
 						alloc_.construct(new_arr + idx + i, *first);
 				}
-				catch (...){
+				catch ( ... ) {
 					for (size_type i = 0; i < count + idx; ++i)
 						alloc_.destroy(new_arr + i);
 					alloc_.deallocate(new_arr, new_cap);
-					throw;
+					throw ;
 				}
-
 				for (size_type i = idx; i < size_ ; ++i)
 					alloc_.construct(new_arr + i + count, *(arr_ + i));
-				//std::uninitialized_copy(position, end(), iterator(new_arr + idx + count));
-
 				for (size_type i = 0; i < size_; i++)
 					alloc_.destroy(arr_ + i);
 				alloc_.deallocate(arr_, capacity_);
-				//size_ += count;
 				capacity_ = new_cap;
 				arr_ = new_arr;
 			} else {
@@ -548,8 +404,10 @@ class vector {
 		}
 
 		iterator erase( iterator position ) {
-			size_type index = static_cast<size_type>(position - begin());
+			if (position == end())
+				return position;
 
+			size_type index = static_cast<size_type>(position - begin());
 			--size_;
 			for (size_type i = index; i < size_; ++i) {
 				alloc_.destroy(arr_ + i);
@@ -604,7 +462,6 @@ class vector {
 template < class T, class Alloc >
 	bool operator==( const vector<T, Alloc>& lhs,
 					const vector<T, Alloc>& rhs) {
-		//size_type	size = lhs.size();
 		unsigned int size = lhs.size();
 		if (size != rhs.size())
 			return false;
@@ -624,11 +481,10 @@ template < class T, class Alloc >
 template < class T, class Alloc >
 	bool operator<( const vector<T, Alloc>& lhs,
 					const vector<T, Alloc>& rhs) {
-	//return lexicographical_compare(lhs.begin, lhs.end(), rhs.begin(), rhs.end());
 
-		unsigned	i = 0;
-		unsigned	lsz = lhs.size();
-		unsigned	rsz = rhs.size();
+		unsigned int i = 0;
+		unsigned int lsz = lhs.size();
+		unsigned int rsz = rhs.size();
 	
 		while (i < lsz && i < rsz && lhs[i] == rhs[i])
 			i++;
