@@ -2,7 +2,6 @@
 # define __VECTOR_HPP__
 
 #include <memory>
-#include <iostream>
 #include <exception>
 
 # include "reverse_iterator.hpp"
